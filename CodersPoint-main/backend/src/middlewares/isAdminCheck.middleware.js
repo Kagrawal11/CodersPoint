@@ -2,6 +2,7 @@
 import { UserRole } from "../generated/prisma/index.js";
 import ApiError from "../lib/api-error.js";
 import { db } from "../lib/db.js";
+import logger from "../logger/index.js";
 
 export const checkAdmin = async(req, res, next) => {
     try {

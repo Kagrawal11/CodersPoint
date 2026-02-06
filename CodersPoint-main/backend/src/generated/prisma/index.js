@@ -235,7 +235,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\Completed_Projects\\Coding_Platform\\backend\\src\\generated\\prisma",
+      "value": "F:\\SM VITA CDAC\\Resume Project\\CodersPoint-main\\backend\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -249,7 +249,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\Completed_Projects\\Coding_Platform\\backend\\prisma\\schema.prisma",
+    "sourceFilePath": "F:\\SM VITA CDAC\\Resume Project\\CodersPoint-main\\backend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -267,7 +267,7 @@ const config = {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://neondb_owner:npg_tYc8vwT9bXUu@ep-aged-cloud-a43ibwsp-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+        "value": "postgresql://neondb_owner:npg_a83SzRAMEeWo@ep-summer-rain-ahq5g4c6-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
       }
     }
   },

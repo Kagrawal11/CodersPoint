@@ -1,28 +1,27 @@
-import express from "express";
+import { Router } from "express";
 import { isLoggedIn } from "../middlewares/isLoggedIn.middleware.js";
-
-// create router
-const router = express.Router();
-
-// import controllers
 import {
-    getAllListDetails,
-    getPlaylistDetails,
-    createPlaylist,
     addProblemToPlaylist,
+    createPlaylist,
     deletePlaylist,
     deleteProblemFromPlaylist,
+    getAllListDetails,
+    getPlaylistDetails,
 } from "../controllers/playlist.controller.js";
 
-// create routes
-router.route("/").get(isLoggedIn, getAllListDetails);
-router.route("/:playlistId").get(isLoggedIn, getPlaylistDetails);
-router.route("/create-playlist").post(isLoggedIn, createPlaylist);
-router.route("/:playlistId/add-problem").post(isLoggedIn, addProblemToPlaylist);
-router.route("/:playlistId").delete(isLoggedIn, deletePlaylist);
-router
-    .route("/:playlistId/remove-problem")
-    .delete(isLoggedIn, deleteProblemFromPlaylist);
+const router = Router();
 
-// export router
+router.use(isLoggedIn); // Apply middleware to all routes below
+
+// FIXED: Specific routes go FIRST
+router.route("/create-playlist").post(createPlaylist); 
+router.route("/").get(getAllListDetails);
+
+// FIXED: Dynamic routes (/:id) go LAST
+router.route("/:playlistId").get(getPlaylistDetails);
+router.route("/:playlistId").delete(deletePlaylist);
+
+router.route("/:playlistId/add-problem/:problemId").post(addProblemToPlaylist);
+router.route("/:playlistId/remove-problem/:problemId").delete(deleteProblemFromPlaylist);
+
 export default router;

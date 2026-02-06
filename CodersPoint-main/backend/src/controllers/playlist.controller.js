@@ -77,10 +77,13 @@ export const getAllListDetails = async (req, res) => {
 export const getPlaylistDetails = async (req, res) => {
     try {
         const { playlistId } = req.params;
+        // FIXED: Defined userId so the query below doesn't crash
+        const userId = req.user.id; 
 
         const playlistDetails = await db.playlist.findUnique({
             where: {
-                userId,
+                // FIXED: Now 'userId' is actually defined
+                userId, 
                 id: playlistId,
             },
             include: {
@@ -108,10 +111,11 @@ export const getPlaylistDetails = async (req, res) => {
             );
     } catch (err) {
         logger.error(err);
+        // Note: passing 'playlistDetails' here might throw error if it's undefined, 
+        // but strictly fixing the crash, we leave the message.
         const error = new ApiError(
             500,
-            "Error in fetching a playlist.",
-            playlistDetails
+            "Error in fetching a playlist."
         );
         res.status(500).json(error);
     }
@@ -119,22 +123,22 @@ export const getPlaylistDetails = async (req, res) => {
 
 export const addProblemToPlaylist = async (req, res) => {
     const { playlistId } = req.params;
-    const { problemIds } = req.body; // Accept an array of problem IDs
+    const { problemIds } = req.body; 
 
     try {
-        // Ensure problemIds is an array
         if (!Array.isArray(problemIds) || problemIds.length === 0) {
             return res
                 .status(400)
                 .json({ error: "Invalid or missing problemIds" });
         }
         
-        // Create records for each problem in the playlist
+        // FIXED: Ensure model name is 'problemsInPlaylist' (plural)
         const problemsInPlaylist = await db.problemsInPlaylist.createMany({
             data: problemIds.map((problemId) => ({
-                playListId: playlistId, // ✅ match your Prisma field name exactly
+                playListId: playlistId, 
                 problemId,
             })),
+            skipDuplicates: true, // Recommended: prevent crashing if problem is already in playlist
         });
 
         return res
@@ -162,11 +166,13 @@ export const deletePlaylist = async (req, res) => {
 
         const deletedPlaylist = await db.playlist.delete({
             where: {
-                playlistId,
+                // FIXED: Mapped playlistId to the 'id' field
+                id: playlistId, 
             },
         });
 
-        if (!deletePlaylist) {
+        // FIXED: Check 'deletedPlaylist' not the function 'deletePlaylist'
+        if (!deletedPlaylist) {
             const error = new ApiError(404, `Playlist not found.`);
             return res.status(404).json(error);
         }
@@ -197,9 +203,10 @@ export const deleteProblemFromPlaylist = async (req, res) => {
             return res.status(400).json(error);
         }
 
-        const deletedProblems = await db.problemInPlaylists.deleteMany({
+        // FIXED: Correct model name (problemsInPlaylist) and field name (playListId)
+        const deletedProblems = await db.problemsInPlaylist.deleteMany({
             where: {
-                playlistId,
+                playListId: playlistId, 
                 problemId: {
                     in: problemIds,
                 },

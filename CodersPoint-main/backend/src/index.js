@@ -12,6 +12,8 @@ import executionRoutes from "./routes/execution.route.js";
 import submissionRoutes from "./routes/submission.route.js";
 import playlistRoutes from "./routes/playlist.route.js";
 
+import userRouter from "./routes/user.route.js";
+
 // configure dotenv
 dotenv.config({
     path: ".env",
@@ -27,7 +29,7 @@ app.use(cookieParser());
 app.use(
     cors({
         origin: "http://localhost:5173",
-        credentials: true,
+        credentials: true
     })
 );
 
@@ -37,6 +39,7 @@ app.use("/api/v1/problems", problemsRoutes);
 app.use("/api/v1/execute-code", executionRoutes);
 app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
+app.use("/api/v1/users", userRouter);
 
 // Start server
 app.listen(port, () => {
