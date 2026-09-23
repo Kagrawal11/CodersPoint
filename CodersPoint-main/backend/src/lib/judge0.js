@@ -3,9 +3,16 @@ import logger from "../logger/index.js";
 
 const options = {
     headers: {
-        "x-rapidapi-key": process.env.RAPID_API_KEY,
-        "x-rapidapi-host": process.env.RAPID_API_HOST,
         "Content-Type": "application/json",
+        // self-hosted Judge0 (AUTHN_TOKEN in judge0.conf)
+        ...(process.env.JUDGE0_AUTH_TOKEN && {
+            "X-Auth-Token": process.env.JUDGE0_AUTH_TOKEN,
+        }),
+        // RapidAPI-hosted Judge0, if used instead
+        ...(process.env.RAPID_API_KEY && {
+            "x-rapidapi-key": process.env.RAPID_API_KEY,
+            "x-rapidapi-host": process.env.RAPID_API_HOST,
+        }),
     },
 };
 
