@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { axiosInstance } from "../lib/axios";
 import { User, CheckCircle, Clock, Award } from "lucide-react";
 
 const ProfilePage = () => {
@@ -10,9 +10,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/users/profile", {
-          withCredentials: true,
-        });
+        const res = await axiosInstance.get("/users/profile");
         setProfile(res.data.data);
       } catch (err) {
         setError("Failed to load profile");

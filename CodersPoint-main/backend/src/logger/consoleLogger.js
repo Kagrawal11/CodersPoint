@@ -34,6 +34,9 @@ export const fileLogger = () => {
             myFormat
         ),
         transports: [
+            // stdout so PaaS platforms (Render/Railway/Fly/etc.) capture and
+            // aggregate logs even though local disk is typically ephemeral
+            new transports.Console(),
             new DailyRotateFile({
                 filename: 'logs/application-%DATE%.log',
                 datePattern: 'YYYY-MM-DD',

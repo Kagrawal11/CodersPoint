@@ -51,7 +51,7 @@ export const register = async(req, res) =>{
         const cookieOptions = {
             httpOnly: true,
             sameSite: "strict",
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV === "production",
             maxAge: 24*60*60*1000
         };
 
@@ -97,7 +97,7 @@ export const login = async(req, res) =>{
         const cookieOptions = {
             httpOnly: true,
             sameSite: "strict",
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV === "production",
             maxAge: 24*60*60*1000
         };
 
@@ -126,7 +126,7 @@ export const logout = async(_, res) =>{
     try {
         const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV !== "production",
+            secure: process.env.NODE_ENV === "production",
             maxAge: 0,
             sameSite: "strict"
         }

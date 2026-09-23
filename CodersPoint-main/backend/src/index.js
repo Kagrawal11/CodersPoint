@@ -4,6 +4,10 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import logger from "./logger/index.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // import routes files
 import authRoutes from "./routes/auth.route.js";
@@ -28,10 +32,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: process.env.FRONTEND_URL || "http://localhost:5173",
         credentials: true
     })
 );
+
+// health check for uptime monitors / platform health checks
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok" });
+});
 
 // routes
 app.use("/api/v1/auth", authRoutes);
@@ -40,6 +49,15 @@ app.use("/api/v1/execute-code", executionRoutes);
 app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
 app.use("/api/v1/users", userRouter);
+
+// serve the built frontend from the same origin/service in production
+if (process.env.NODE_ENV === "production") {
+    const frontendDist = path.join(__dirname, "../../frontend/dist");
+    app.use(express.static(frontendDist));
+    app.use((req, res) => {
+        res.sendFile(path.join(frontendDist, "index.html"));
+    });
+}
 
 // Start server
 app.listen(port, () => {
