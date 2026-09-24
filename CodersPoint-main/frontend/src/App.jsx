@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import HomePage from "./pages/homePage";
-import LoginPage from "./pages/loginPage";
-import SignupPage from "./pages/signupPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/useAuthStore";
 import Layout from "./layout/Layout";
