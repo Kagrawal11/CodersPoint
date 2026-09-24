@@ -2,6 +2,11 @@ import { db } from "../lib/db.js";
 import ApiResponse from "../lib/api-response.js";
 import ApiError from "../lib/api-error.js";
 import logger from "../logger/index.js";
+import {
+    getJudge0LanguageId,
+    submitBatch,
+    poolBatchResults,
+} from "../lib/judge0.js";
 
 export const executeCode = async (req, res) => {
     try {
@@ -13,36 +18,70 @@ export const executeCode = async (req, res) => {
         const problemId = req.body.problemId;
         const userId = req.user.id;
 
-        // 2. MOCK EXECUTION LOGIC (Bypassing Judge0)
-        // Normalize inputs to arrays
-        const inputs = Array.isArray(stdin) ? stdin : [stdin || ""];
-        const expected = Array.isArray(expected_outputs) ? expected_outputs : [];
+        if (!source_code || !language_name) {
+            const error = new ApiError(400, "source_code and language are required.");
+            return res.status(error.statusCode).json(error);
+        }
 
-        logger.info(`Executing (MOCK MODE). ProblemId: ${problemId || "Run Mode"}`);
+        const language_id = getJudge0LanguageId(language_name);
+        if (!language_id) {
+            const error = new ApiError(400, `Unsupported language: ${language_name}`);
+            return res.status(error.statusCode).json(error);
+        }
 
-        // Create fake successful results for every test case
-        const detailedResult = inputs.map((input, i) => ({
-            testcase: i + 1,
-            passed: true, // Force PASS
-            stdout: expected[i] || "10", // Fake the correct output
-            expected: expected[i] || "10",
-            stderr: null,
-            compiledOutput: null,
-            status: "Accepted",
-            memory: "2048 KB",
-            time: "0.01 s",
+        // 2. BUILD TEST CASES
+        // "Submit" runs against the problem's stored (hidden) testcases;
+        // "Run" uses whatever stdin/expected the client sent for a quick check.
+        let inputs, expected;
+        if (problemId) {
+            const problem = await db.problem.findUnique({ where: { id: problemId } });
+            if (!problem) {
+                const error = new ApiError(404, "Problem not found.");
+                return res.status(error.statusCode).json(error);
+            }
+            inputs = problem.testcases.map((tc) => tc.input);
+            expected = problem.testcases.map((tc) => tc.output);
+        } else {
+            inputs = Array.isArray(stdin) ? stdin : [stdin || ""];
+            expected = Array.isArray(expected_outputs) ? expected_outputs : [];
+        }
+
+        // 3. RUN AGAINST JUDGE0
+        const submissions = inputs.map((input, i) => ({
+            source_code,
+            language_id,
+            stdin: input,
+            expected_output: expected[i],
         }));
-        
-        const allPassed = true; 
 
-        // 3. RESPONSE HANDLING
-        
+        const batchSubmission = await submitBatch(submissions);
+        const tokens = batchSubmission.map((s) => s.token);
+        const results = await poolBatchResults(tokens);
+
+        // Judge0 status.id 3 = Accepted; anything else is a real failure
+        // (Wrong Answer, Compile Error, Runtime Error, Time Limit, etc).
+        const detailedResult = results.map((r, i) => ({
+            testcase: i + 1,
+            passed: r.status.id === 3,
+            stdout: r.stdout ? r.stdout.trim() : "",
+            expected: expected[i] ?? "",
+            stderr: r.stderr || null,
+            compiledOutput: r.compile_output || null,
+            status: r.status.description,
+            memory: r.memory ? `${r.memory} KB` : "N/A",
+            time: r.time ? `${r.time} s` : "N/A",
+        }));
+
+        const allPassed = detailedResult.every((r) => r.passed);
+
+        // 4. RESPONSE HANDLING
+
         // CASE A: "Run" Button (No Database Save)
         if (!problemId) {
             return res.status(200).json(
-                new ApiResponse(200, "Code executed successfully (Mock).", { 
-                    detailedResult, 
-                    allPassed 
+                new ApiResponse(200, "Code executed successfully.", {
+                    detailedResult,
+                    allPassed,
                 })
             );
         }
@@ -53,15 +92,17 @@ export const executeCode = async (req, res) => {
                 user: { connect: { id: userId } },
                 problem: { connect: { id: problemId } },
                 sourceCode: source_code,
-                language: language_name || "JAVASCRIPT", // Default if missing
+                language: language_name,
                 stdin: inputs.join("\n"),
-                stdout: JSON.stringify(detailedResult.map(r => r.stdout)),
-                status: "Accepted",
-                // Handle optional fields safely
-                stderr: null,
-                compileOutput: "",
-                memory: JSON.stringify(detailedResult.map(r => r.memory)),
-                time: JSON.stringify(detailedResult.map(r => r.time)),
+                stdout: JSON.stringify(detailedResult.map((r) => r.stdout)),
+                status: allPassed ? "Accepted" : "Wrong Answer",
+                stderr: detailedResult.some((r) => r.stderr)
+                    ? JSON.stringify(detailedResult.map((r) => r.stderr))
+                    : null,
+                compileOutput:
+                    detailedResult.find((r) => r.compiledOutput)?.compiledOutput || "",
+                memory: JSON.stringify(detailedResult.map((r) => r.memory)),
+                time: JSON.stringify(detailedResult.map((r) => r.time)),
             },
         });
 
@@ -76,7 +117,7 @@ export const executeCode = async (req, res) => {
 
         // Save individual test case results
         await db.testCaseResult.createMany({
-            data: detailedResult.map(r => ({
+            data: detailedResult.map((r) => ({
                 submissionId: submission.id,
                 testCase: r.testcase,
                 passed: r.passed,
@@ -86,18 +127,18 @@ export const executeCode = async (req, res) => {
                 memory: r.memory,
                 time: r.time,
                 stderr: r.stderr,
-                compiledOutput: r.compiledOutput
+                compiledOutput: r.compiledOutput,
             })),
         });
 
         // Fetch final submission with relations
         const finalSubmission = await db.submission.findUnique({
-             where: { id: submission.id },
-             include: { testcases: true }
+            where: { id: submission.id },
+            include: { testcases: true },
         });
 
         return res.status(200).json(
-            new ApiResponse(200, "Submission processed (Mock).", finalSubmission)
+            new ApiResponse(200, "Submission processed.", finalSubmission)
         );
 
     } catch (err) {
