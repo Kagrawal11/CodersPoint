@@ -1,11 +1,10 @@
 services:
   - type: web
     name: coderspoint
-    env: node
+    env: docker
     plan: free
     rootDir: CodersPoint-main
-    buildCommand: npm run build
-    startCommand: npm start
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
@@ -13,8 +12,4 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: ACCESS_TOKEN_SECRET
-        sync: false
-      - key: JUDGE0_API_URL
-        value: ""
-      - key: JUDGE0_AUTH_TOKEN
         sync: false

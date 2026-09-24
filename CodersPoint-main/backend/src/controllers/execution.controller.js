@@ -3,16 +3,64 @@ import ApiResponse from "../lib/api-response.js";
 import ApiError from "../lib/api-error.js";
 import logger from "../logger/index.js";
 import {
-    getJudge0LanguageId,
-    submitBatch,
-    poolBatchResults,
-} from "../lib/judge0.js";
+    runJavaScript,
+    runPython,
+    compileJava,
+    runCompiledJava,
+    cleanupJava,
+} from "../lib/sandbox.js";
+
+const SUPPORTED_LANGUAGES = ["JAVASCRIPT", "PYTHON", "JAVA"];
+
+const gradeResult = (r, expectedOutput) => {
+    if (r.compileError) {
+        return { passed: false, stdout: "", stderr: r.stderr, status: "Compilation Error" };
+    }
+
+    const timedOut = r.timedOut;
+    const runtimeError = !timedOut && r.code !== 0;
+    const stdout = r.stdout ? r.stdout.trim() : "";
+    const expected = (expectedOutput ?? "").trim();
+    const passed = !timedOut && !runtimeError && stdout === expected;
+
+    let status;
+    if (timedOut) status = "Time Limit Exceeded";
+    else if (runtimeError) status = "Runtime Error";
+    else status = passed ? "Accepted" : "Wrong Answer";
+
+    return { passed, stdout, stderr: r.stderr || null, status };
+};
+
+// Runs source_code against every input and returns one raw result per input.
+// Java compiles once up front and reuses the compiled class for every run;
+// JS/Python just spawn an interpreter per test case.
+const runAllTestCases = async (language, source_code, inputs) => {
+    if (language === "JAVASCRIPT") {
+        return Promise.all(inputs.map((input) => runJavaScript(source_code, input)));
+    }
+
+    if (language === "PYTHON") {
+        return Promise.all(inputs.map((input) => runPython(source_code, input)));
+    }
+
+    // JAVA
+    const compiled = await compileJava(source_code);
+    if (!compiled.ok) {
+        const compileFailure = { ...compiled.result, compileError: true };
+        return inputs.map(() => compileFailure);
+    }
+    try {
+        return await Promise.all(inputs.map((input) => runCompiledJava(compiled.dir, input)));
+    } finally {
+        cleanupJava(compiled.dir);
+    }
+};
 
 export const executeCode = async (req, res) => {
     try {
         // 1. INPUT PARSING
         const source_code = req.body.source_code || req.body.sourceCode;
-        const language_name = req.body.language;
+        const language_name = (req.body.language || "").toUpperCase();
         const stdin = req.body.stdin || [];
         const expected_outputs = req.body.expected_outputs || [];
         const problemId = req.body.problemId;
@@ -23,8 +71,7 @@ export const executeCode = async (req, res) => {
             return res.status(error.statusCode).json(error);
         }
 
-        const language_id = getJudge0LanguageId(language_name);
-        if (!language_id) {
+        if (!SUPPORTED_LANGUAGES.includes(language_name)) {
             const error = new ApiError(400, `Unsupported language: ${language_name}`);
             return res.status(error.statusCode).json(error);
         }
@@ -46,30 +93,16 @@ export const executeCode = async (req, res) => {
             expected = Array.isArray(expected_outputs) ? expected_outputs : [];
         }
 
-        // 3. RUN AGAINST JUDGE0
-        const submissions = inputs.map((input, i) => ({
-            source_code,
-            language_id,
-            stdin: input,
-            expected_output: expected[i],
-        }));
+        // 3. RUN IN THE SANDBOX
+        const rawResults = await runAllTestCases(language_name, source_code, inputs);
 
-        const batchSubmission = await submitBatch(submissions);
-        const tokens = batchSubmission.map((s) => s.token);
-        const results = await poolBatchResults(tokens);
-
-        // Judge0 status.id 3 = Accepted; anything else is a real failure
-        // (Wrong Answer, Compile Error, Runtime Error, Time Limit, etc).
-        const detailedResult = results.map((r, i) => ({
+        const detailedResult = rawResults.map((r, i) => ({
             testcase: i + 1,
-            passed: r.status.id === 3,
-            stdout: r.stdout ? r.stdout.trim() : "",
             expected: expected[i] ?? "",
-            stderr: r.stderr || null,
-            compiledOutput: r.compile_output || null,
-            status: r.status.description,
-            memory: r.memory ? `${r.memory} KB` : "N/A",
-            time: r.time ? `${r.time} s` : "N/A",
+            memory: "N/A",
+            time: "N/A",
+            compiledOutput: null,
+            ...gradeResult(r, expected[i]),
         }));
 
         const allPassed = detailedResult.every((r) => r.passed);
@@ -99,8 +132,7 @@ export const executeCode = async (req, res) => {
                 stderr: detailedResult.some((r) => r.stderr)
                     ? JSON.stringify(detailedResult.map((r) => r.stderr))
                     : null,
-                compileOutput:
-                    detailedResult.find((r) => r.compiledOutput)?.compiledOutput || "",
+                compileOutput: "",
                 memory: JSON.stringify(detailedResult.map((r) => r.memory)),
                 time: JSON.stringify(detailedResult.map((r) => r.time)),
             },
