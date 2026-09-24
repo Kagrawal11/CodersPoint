@@ -1,8 +1,3 @@
-import {
-    getJudge0LanguageId,
-    poolBatchResults,
-    submitBatch,
-} from "../lib/judge0.js";
 import ApiResponse from "../lib/api-response.js";
 import ApiError from "../lib/api-error.js";
 import logger from "../logger/index.js";
