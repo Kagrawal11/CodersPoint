@@ -14,13 +14,7 @@ const SUPPORTED_LANGUAGES = ["JAVASCRIPT", "PYTHON", "JAVA"];
 
 const gradeResult = (r, expectedOutput) => {
     if (r.compileError) {
-        // TEMP DEBUG: surface everything to diagnose a prod-only compile failure
-        return {
-            passed: false,
-            stdout: "",
-            stderr: `[DEBUG exit=${r.code} timedOut=${r.timedOut}] stderr=${r.stderr || "(empty)"} stdout=${r.stdout || "(empty)"}`,
-            status: "Compilation Error",
-        };
+        return { passed: false, stdout: "", stderr: r.stderr, status: "Compilation Error" };
     }
 
     const timedOut = r.timedOut;

@@ -3,7 +3,11 @@ import { writeFile, mkdtemp, rm } from "fs/promises";
 import path from "path";
 import os from "os";
 
-const TIMEOUT_MS = 5000;
+const RUN_TIMEOUT_MS = 5000;
+// Render's free tier is CPU-throttled hard enough that a cold JVM start
+// (javac or java) alone can take several seconds - give the JVM more room
+// than the lighter JS/Python interpreters get.
+const JVM_TIMEOUT_MS = 15000;
 const MAX_OUTPUT_CHARS = 100_000;
 
 // ponytail: no external judge available (no VPS, no whitelisted public API),
@@ -16,14 +20,14 @@ const MAX_OUTPUT_CHARS = 100_000;
 // Judge0/Piston instance if that ever becomes affordable.
 const SAFE_ENV = { PATH: process.env.PATH };
 
-const runProcess = (command, args, { cwd, stdin } = {}) => {
+const runProcess = (command, args, { cwd, stdin, timeoutMs = RUN_TIMEOUT_MS } = {}) => {
     return new Promise((resolve) => {
         let child;
         try {
             child = spawn(command, args, {
                 cwd,
                 env: SAFE_ENV,
-                timeout: TIMEOUT_MS,
+                timeout: timeoutMs,
                 killSignal: "SIGKILL",
             });
         } catch (err) {
@@ -94,7 +98,7 @@ export const compileJava = async (source_code) => {
     const dir = await tempDir("java-");
     const file = path.join(dir, "Main.java");
     await writeFile(file, source_code);
-    const compile = await runProcess("javac", ["Main.java"], { cwd: dir });
+    const compile = await runProcess("javac", ["Main.java"], { cwd: dir, timeoutMs: JVM_TIMEOUT_MS });
 
     if (compile.code !== 0) {
         cleanup(dir);
@@ -104,6 +108,6 @@ export const compileJava = async (source_code) => {
 };
 
 export const runCompiledJava = (dir, stdin) =>
-    runProcess("java", ["-cp", dir, "Main"], { stdin });
+    runProcess("java", ["-cp", dir, "Main"], { stdin, timeoutMs: JVM_TIMEOUT_MS });
 
 export const cleanupJava = cleanup;
