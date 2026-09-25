@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
-import { Code, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { Code2, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { z } from "zod";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { useAuthStore } from "../store/useAuthStore";
@@ -18,7 +18,7 @@ const LoginPage = () => {
     const { login, isLoggingIn } = useAuthStore();
 
     const {
-        register, 
+        register,
         handleSubmit,
         formState: { errors },
     } = useForm({
@@ -35,20 +35,21 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="h-screen grid lg:grid-cols-2">
-            <div className="flex flex-col justify-center items-center p-6 sm:p-12">
-                <div className="w-full max-w-md space-y-8">
+        <div className="grid min-h-screen lg:grid-cols-2">
+            <div className="relative flex flex-col items-center justify-center p-6 sm:p-12">
+                <div className="pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/20 blur-[100px]" />
+                <div className="relative z-10 w-full max-w-md space-y-8">
                     {/* Logo */}
-                    <div className="text-center mb-8">
-                        <div className="flex flex-col items-center gap-2 group">
-                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                <Code className="w-6 h-6 text-primary" />
+                    <div className="mb-8 text-center">
+                        <div className="group flex flex-col items-center gap-3">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 transition-transform group-hover:scale-105">
+                                <Code2 className="h-7 w-7 text-primary-content" />
                             </div>
-                            <h1 className="text-2xl font-bold mt-2">
-                                Welcome Back{" "}
+                            <h1 className="font-display mt-2 text-3xl font-bold">
+                                Welcome back
                             </h1>
                             <p className="text-base-content/60">
-                                Sign Up to your account
+                                Sign in to continue to your account
                             </p>
                         </div>
                     </div>
@@ -56,7 +57,7 @@ const LoginPage = () => {
                     {/* Form */}
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-6"
+                        className="space-y-5 rounded-2xl border border-white/5 bg-base-200/40 p-6 shadow-xl shadow-black/10 backdrop-blur-sm sm:p-8"
                     >
                         {/* Email */}
                         <div className="form-control">
@@ -65,21 +66,21 @@ const LoginPage = () => {
                                     Email
                                 </span>
                             </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-base-content/40" />
-                                </div>
+                            <label
+                                className={`input input-bordered flex items-center gap-2 rounded-xl bg-base-100/60 ${
+                                    errors.email ? "input-error" : ""
+                                }`}
+                            >
+                                <Mail className="h-4 w-4 text-base-content/40" />
                                 <input
                                     type="email"
                                     {...register("email")}
-                                    className={`input input-bordered w-full pl-10 ${
-                                        errors.email ? "input-error" : ""
-                                    }`}
+                                    className="grow"
                                     placeholder="you@example.com"
                                 />
-                            </div>
+                            </label>
                             {errors.email && (
-                                <p className="text-red-500 text-sm mt-1">
+                                <p className="mt-1 text-sm text-error">
                                     {errors.email.message}
                                 </p>
                             )}
@@ -92,34 +93,34 @@ const LoginPage = () => {
                                     Password
                                 </span>
                             </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-base-content/40" />
-                                </div>
+                            <label
+                                className={`input input-bordered flex items-center gap-2 rounded-xl bg-base-100/60 ${
+                                    errors.password ? "input-error" : ""
+                                }`}
+                            >
+                                <Lock className="h-4 w-4 text-base-content/40" />
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     {...register("password")}
-                                    className={`input input-bordered w-full pl-10 ${
-                                        errors.password ? "input-error" : ""
-                                    }`}
+                                    className="grow"
                                     placeholder="••••••••"
                                 />
                                 <button
                                     type="button"
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                     onClick={() =>
                                         setShowPassword(!showPassword)
                                     }
+                                    className="text-base-content/40 hover:text-base-content"
                                 >
                                     {showPassword ? (
-                                        <EyeOff className="h-5 w-5 text-base-content/40" />
+                                        <EyeOff className="h-4 w-4" />
                                     ) : (
-                                        <Eye className="h-5 w-5 text-base-content/40" />
+                                        <Eye className="h-4 w-4" />
                                     )}
                                 </button>
-                            </div>
+                            </label>
                             {errors.password && (
-                                <p className="text-red-500 text-sm mt-1">
+                                <p className="mt-1 text-sm text-error">
                                     {errors.password.message}
                                 </p>
                             )}
@@ -128,7 +129,7 @@ const LoginPage = () => {
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            className="btn btn-primary w-full"
+                            className="btn btn-primary glow-primary w-full rounded-xl"
                             disabled={isLoggingIn}
                         >
                             {isLoggingIn ? (
@@ -146,7 +147,10 @@ const LoginPage = () => {
                     <div className="text-center">
                         <p className="text-base-content/60">
                             Don't have an account?{" "}
-                            <Link to="/signup" className="link link-primary">
+                            <Link
+                                to="/signup"
+                                className="link link-primary font-medium no-underline hover:underline"
+                            >
                                 Sign up
                             </Link>
                         </p>

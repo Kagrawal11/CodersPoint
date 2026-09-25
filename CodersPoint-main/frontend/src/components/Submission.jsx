@@ -4,6 +4,7 @@ import {
     XCircle,
     Clock,
     MemoryStick as Memory,
+    Gauge,
 } from "lucide-react";
 
 const SubmissionResults = ({ submission }) => {
@@ -25,104 +26,106 @@ const SubmissionResults = ({ submission }) => {
     const passedTests = submission.testcases.filter((tc) => tc.passed).length;
     const totalTests = submission.testcases.length;
     const successRate = (passedTests / totalTests) * 100;
+    const isAccepted = submission.status === "Accepted";
+
+    const statCards = [
+        {
+            label: "Status",
+            value: submission.status,
+            icon: isAccepted ? CheckCircle2 : XCircle,
+            tone: isAccepted ? "text-success" : "text-error",
+        },
+        {
+            label: "Success Rate",
+            value: `${successRate.toFixed(1)}%`,
+            icon: Gauge,
+            tone: "text-primary",
+        },
+        {
+            label: "Avg. Runtime",
+            value: `${avgTime.toFixed(3)} s`,
+            icon: Clock,
+            tone: "text-secondary",
+        },
+        {
+            label: "Avg. Memory",
+            value: `${avgMemory.toFixed(0)} KB`,
+            icon: Memory,
+            tone: "text-accent",
+        },
+    ];
 
     return (
-        <div className="space-y-6">
+        <div className="animate-fade-in-up space-y-6">
             {/* Overall Status */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="card bg-base-200 shadow-lg">
-                    <div className="card-body p-4">
-                        <h3 className="card-title text-sm">Status</h3>
-                        <div
-                            className={`text-lg font-bold ${
-                                submission.status === "Accepted"
-                                    ? "text-success"
-                                    : "text-error"
-                            }`}
-                        >
-                            {submission.status}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {statCards.map(({ label, value, icon: Icon, tone }) => (
+                    <div
+                        key={label}
+                        className="glass-panel rounded-2xl p-5 transition-transform hover:-translate-y-0.5"
+                    >
+                        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-base-content/50">
+                            <Icon className={`h-4 w-4 ${tone}`} />
+                            {label}
+                        </div>
+                        <div className={`mt-2 font-display text-2xl font-bold ${tone}`}>
+                            {value}
                         </div>
                     </div>
-                </div>
-
-                <div className="card bg-base-200 shadow-lg">
-                    <div className="card-body p-4">
-                        <h3 className="card-title text-sm">Success Rate</h3>
-                        <div className="text-lg font-bold">
-                            {successRate.toFixed(1)}%
-                        </div>
-                    </div>
-                </div>
-
-                <div className="card bg-base-200 shadow-lg">
-                    <div className="card-body p-4">
-                        <h3 className="card-title text-sm flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            Avg. Runtime
-                        </h3>
-                        <div className="text-lg font-bold">
-                            {avgTime.toFixed(3)} s
-                        </div>
-                    </div>
-                </div>
-
-                <div className="card bg-base-200 shadow-lg">
-                    <div className="card-body p-4">
-                        <h3 className="card-title text-sm flex items-center gap-2">
-                            <Memory className="w-4 h-4" />
-                            Avg. Memory
-                        </h3>
-                        <div className="text-lg font-bold">
-                            {avgMemory.toFixed(0)} KB
-                        </div>
-                    </div>
-                </div>
+                ))}
             </div>
 
             {/* Test Cases Results */}
-            <div className="card bg-base-100 shadow-xl">
-                <div className="card-body">
-                    <h2 className="card-title mb-4">Test Cases Results</h2>
-                    <div className="overflow-x-auto">
-                        <table className="table table-zebra w-full">
-                            <thead>
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Expected Output</th>
-                                    <th>Your Output</th>
-                                    <th>Memory</th>
-                                    <th>Time</th>
+            <div className="glass-panel rounded-2xl p-6">
+                <h2 className="font-display mb-4 text-lg font-bold text-base-content">
+                    Test Case Results
+                </h2>
+                <div className="overflow-x-auto rounded-xl border border-white/5">
+                    <table className="table w-full">
+                        <thead>
+                            <tr className="border-white/5 text-xs uppercase tracking-wide text-base-content/50">
+                                <th className="bg-base-200/60">Status</th>
+                                <th className="bg-base-200/60">Expected Output</th>
+                                <th className="bg-base-200/60">Your Output</th>
+                                <th className="bg-base-200/60">Memory</th>
+                                <th className="bg-base-200/60">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {submission.testcases.map((testCase) => (
+                                <tr
+                                    key={testCase.id}
+                                    className="border-white/5 hover:bg-white/[0.03]"
+                                >
+                                    <td>
+                                        {testCase.passed ? (
+                                            <div className="flex items-center gap-2 font-medium text-success">
+                                                <CheckCircle2 className="h-4 w-4" />
+                                                Passed
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2 font-medium text-error">
+                                                <XCircle className="h-4 w-4" />
+                                                Failed
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="font-mono text-sm text-base-content/80">
+                                        {testCase.expected}
+                                    </td>
+                                    <td className="font-mono text-sm text-base-content/80">
+                                        {testCase.stdout || "null"}
+                                    </td>
+                                    <td className="text-sm text-base-content/60">
+                                        {testCase.memory}
+                                    </td>
+                                    <td className="text-sm text-base-content/60">
+                                        {testCase.time}
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {submission.testcases.map((testCase) => (
-                                    <tr key={testCase.id}>
-                                        <td>
-                                            {testCase.passed ? (
-                                                <div className="flex items-center gap-2 text-success">
-                                                    <CheckCircle2 className="w-5 h-5" />
-                                                    Passed
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2 text-error">
-                                                    <XCircle className="w-5 h-5" />
-                                                    Failed
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="font-mono">
-                                            {testCase.expected}
-                                        </td>
-                                        <td className="font-mono">
-                                            {testCase.stdout || "null"}
-                                        </td>
-                                        <td>{testCase.memory}</td>
-                                        <td>{testCase.time}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -594,575 +594,452 @@ const CreateProblemForm = () => {
         reset(sampleData);
     };
 
-    return (
-        <div className="container mx-auto py-8 px-4 max-w-7xl">
-            <div className="card bg-base-100 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
-                        <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
-                            <FileText className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-                            Create Problem
-                        </h2>
+    const inputClass =
+        "input w-full rounded-xl border-white/10 bg-base-300/40 focus:border-primary focus:outline-none";
+    const textareaClass =
+        "textarea w-full resize-y rounded-xl border-white/10 bg-base-300/40 p-3 focus:border-primary focus:outline-none";
+    const selectClass =
+        "select w-full rounded-xl border-white/10 bg-base-300/40 focus:border-primary focus:outline-none";
+    const labelClass = "mb-1.5 block text-sm font-medium text-base-content/70";
+    const errorClass = "mt-1.5 block text-sm text-error";
+    const sectionClass = "glass-panel rounded-2xl p-5 md:p-6";
+    const subCardClass =
+        "rounded-xl border border-white/5 bg-base-100/40 p-4 md:p-6";
+    const sectionHeadingClass =
+        "font-display mb-4 flex items-center gap-2 text-lg font-bold text-base-content md:mb-6 md:text-xl";
 
-                        <div className="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
-                            <div className="join">
-                                <button
-                                    type="button"
-                                    className={`btn join-item ${
-                                        sampleType === "DP" ? "btn-active" : ""
-                                    }`}
-                                    onClick={() => setSampleType("array")}
-                                >
-                                    DP Problem
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`btn join-item ${
-                                        sampleType === "string"
-                                            ? "btn-active"
-                                            : ""
-                                    }`}
-                                    onClick={() => setSampleType("string")}
-                                >
-                                    String Problem
-                                </button>
-                            </div>
+    return (
+        <div className="animate-fade-in-up">
+            <div className="glass-panel rounded-2xl p-6 md:p-8">
+                <div className="mb-6 flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-6 md:mb-8 md:flex-row md:items-center">
+                    <h2 className="font-display flex items-center gap-3 text-2xl font-bold text-base-content md:text-3xl">
+                        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-content shadow-md shadow-primary/30">
+                            <FileText className="h-5 w-5 md:h-6 md:w-6" />
+                        </span>
+                        Create Problem
+                    </h2>
+
+                    <div className="flex flex-col gap-3 md:flex-row">
+                        <div className="join overflow-hidden rounded-xl">
                             <button
                                 type="button"
-                                className="btn btn-secondary gap-2"
-                                onClick={loadSampleData}
+                                className={`btn join-item rounded-none border-white/10 ${
+                                    sampleType === "DP" ? "btn-primary" : "btn-ghost"
+                                }`}
+                                onClick={() => setSampleType("array")}
                             >
-                                <Download className="w-4 h-4" />
-                                Load Sample
+                                DP Problem
                             </button>
+                            <button
+                                type="button"
+                                className={`btn join-item rounded-none border-white/10 ${
+                                    sampleType === "string"
+                                        ? "btn-primary"
+                                        : "btn-ghost"
+                                }`}
+                                onClick={() => setSampleType("string")}
+                            >
+                                String Problem
+                            </button>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn btn-secondary gap-2 rounded-xl"
+                            onClick={loadSampleData}
+                        >
+                            <Download className="h-4 w-4" />
+                            Load Sample
+                        </button>
+                    </div>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+                        <div className="md:col-span-2">
+                            <label className={labelClass}>Title</label>
+                            <input
+                                type="text"
+                                className={`${inputClass} text-base md:text-lg`}
+                                {...register("title")}
+                                placeholder="Enter problem title"
+                            />
+                            {errors.title && (
+                                <span className={errorClass}>
+                                    {errors.title.message}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className={labelClass}>Description</label>
+                            <textarea
+                                className={`${textareaClass} min-h-32 text-base md:text-lg`}
+                                {...register("description")}
+                                placeholder="Enter problem description"
+                            />
+                            {errors.description && (
+                                <span className={errorClass}>
+                                    {errors.description.message}
+                                </span>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Difficulty</label>
+                            <select
+                                className={`${selectClass} text-base md:text-lg`}
+                                {...register("difficulty")}
+                            >
+                                <option value="EASY">Easy</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HARD">Hard</option>
+                            </select>
+                            {errors.difficulty && (
+                                <span className={errorClass}>
+                                    {errors.difficulty.message}
+                                </span>
+                            )}
                         </div>
                     </div>
 
-                    <form
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-8"
-                    >
-                        {/* Basic Information */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="form-control md:col-span-2">
-                                <label className="label">
-                                    <span className="label-text text-base md:text-lg font-semibold">
-                                        Title
-                                    </span>
-                                </label>
-                                <input
-                                    type="text"
-                                    className="input input-bordered w-full text-base md:text-lg"
-                                    {...register("title")}
-                                    placeholder="Enter problem title"
-                                />
-                                {errors.title && (
-                                    <label className="label">
-                                        <span className="label-text-alt text-error">
-                                            {errors.title.message}
-                                        </span>
-                                    </label>
-                                )}
-                            </div>
-
-                            <div className="form-control md:col-span-2">
-                                <label className="label">
-                                    <span className="label-text text-base md:text-lg font-semibold">
-                                        Description
-                                    </span>
-                                </label>
-                                <textarea
-                                    className="textarea textarea-bordered min-h-32 w-full text-base md:text-lg p-4 resize-y"
-                                    {...register("description")}
-                                    placeholder="Enter problem description"
-                                />
-                                {errors.description && (
-                                    <label className="label">
-                                        <span className="label-text-alt text-error">
-                                            {errors.description.message}
-                                        </span>
-                                    </label>
-                                )}
-                            </div>
-
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text text-base md:text-lg font-semibold">
-                                        Difficulty
-                                    </span>
-                                </label>
-                                <select
-                                    className="select select-bordered w-full text-base md:text-lg"
-                                    {...register("difficulty")}
-                                >
-                                    <option value="EASY">Easy</option>
-                                    <option value="MEDIUM">Medium</option>
-                                    <option value="HARD">Hard</option>
-                                </select>
-                                {errors.difficulty && (
-                                    <label className="label">
-                                        <span className="label-text-alt text-error">
-                                            {errors.difficulty.message}
-                                        </span>
-                                    </label>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Tags */}
-                        <div className="card bg-base-200 p-4 md:p-6 shadow-md">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-                                    <BookOpen className="w-5 h-5" />
-                                    Tags
-                                </h3>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary btn-sm"
-                                    onClick={() => appendTag("")}
-                                >
-                                    <Plus className="w-4 h-4 mr-1" /> Add Tag
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {tagFields.map((field, index) => (
-                                    <div
-                                        key={field.id}
-                                        className="flex gap-2 items-center"
-                                    >
-                                        <input
-                                            type="text"
-                                            className="input input-bordered flex-1"
-                                            {...register(`tags.${index}`)}
-                                            placeholder="Enter tag"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="btn btn-ghost btn-square btn-sm"
-                                            onClick={() => removeTag(index)}
-                                            disabled={tagFields.length === 1}
-                                        >
-                                            <Trash2 className="w-4 h-4 text-error" />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                            {errors.tags && (
-                                <div className="mt-2">
-                                    <span className="text-error text-sm">
-                                        {errors.tags.message}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Test Cases */}
-                        <div className="card bg-base-200 p-4 md:p-6 shadow-md">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-                                    <CheckCircle2 className="w-5 h-5" />
-                                    Test Cases
-                                </h3>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary btn-sm"
-                                    onClick={() =>
-                                        appendTestCase({
-                                            input: "",
-                                            output: "",
-                                        })
-                                    }
-                                >
-                                    <Plus className="w-4 h-4 mr-1" /> Add Test
-                                    Case
-                                </button>
-                            </div>
-                            <div className="space-y-6">
-                                {testCaseFields.map((field, index) => (
-                                    <div
-                                        key={field.id}
-                                        className="card bg-base-100 shadow-md"
-                                    >
-                                        <div className="card-body p-4 md:p-6">
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h4 className="text-base md:text-lg font-semibold">
-                                                    Test Case #{index + 1}
-                                                </h4>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-ghost btn-sm text-error"
-                                                    onClick={() =>
-                                                        removeTestCase(index)
-                                                    }
-                                                    disabled={
-                                                        testCaseFields.length ===
-                                                        1
-                                                    }
-                                                >
-                                                    <Trash2 className="w-4 h-4 mr-1" />{" "}
-                                                    Remove
-                                                </button>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                                <div className="form-control">
-                                                    <label className="label">
-                                                        <span className="label-text font-medium">
-                                                            Input
-                                                        </span>
-                                                    </label>
-                                                    <textarea
-                                                        className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                                                        {...register(
-                                                            `testcases.${index}.input`
-                                                        )}
-                                                        placeholder="Enter test case input"
-                                                    />
-                                                    {errors.testcases?.[index]
-                                                        ?.input && (
-                                                        <label className="label">
-                                                            <span className="label-text-alt text-error">
-                                                                {
-                                                                    errors
-                                                                        .testcases[
-                                                                        index
-                                                                    ].input
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        </label>
-                                                    )}
-                                                </div>
-                                                <div className="form-control">
-                                                    <label className="label">
-                                                        <span className="label-text font-medium">
-                                                            Expected Output
-                                                        </span>
-                                                    </label>
-                                                    <textarea
-                                                        className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                                                        {...register(
-                                                            `testcases.${index}.output`
-                                                        )}
-                                                        placeholder="Enter expected output"
-                                                    />
-                                                    {errors.testcases?.[index]
-                                                        ?.output && (
-                                                        <label className="label">
-                                                            <span className="label-text-alt text-error">
-                                                                {
-                                                                    errors
-                                                                        .testcases[
-                                                                        index
-                                                                    ].output
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        </label>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            {errors.testcases &&
-                                !Array.isArray(errors.testcases) && (
-                                    <div className="mt-2">
-                                        <span className="text-error text-sm">
-                                            {errors.testcases.message}
-                                        </span>
-                                    </div>
-                                )}
-                        </div>
-
-                        {/* Code Editor Sections */}
-                        <div className="space-y-8">
-                            {["JAVASCRIPT", "PYTHON", "JAVA"].map(
-                                (language) => (
-                                    <div
-                                        key={language}
-                                        className="card bg-base-200 p-4 md:p-6 shadow-md"
-                                    >
-                                        <h3 className="text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
-                                            <Code2 className="w-5 h-5" />
-                                            {language}
-                                        </h3>
-
-                                        <div className="space-y-6">
-                                            {/* Starter Code */}
-                                            <div className="card bg-base-100 shadow-md">
-                                                <div className="card-body p-4 md:p-6">
-                                                    <h4 className="font-semibold text-base md:text-lg mb-4">
-                                                        Starter Code Template
-                                                    </h4>
-                                                    <div className="border rounded-md overflow-hidden">
-                                                        <Controller
-                                                            name={`codeSnippets.${language}`}
-                                                            control={control}
-                                                            render={({
-                                                                field,
-                                                            }) => (
-                                                                <Editor
-                                                                    height="300px"
-                                                                    language={language.toLowerCase()}
-                                                                    theme="vs-dark"
-                                                                    value={
-                                                                        field.value
-                                                                    }
-                                                                    onChange={
-                                                                        field.onChange
-                                                                    }
-                                                                    options={{
-                                                                        minimap:
-                                                                            {
-                                                                                enabled: false,
-                                                                            },
-                                                                        fontSize: 14,
-                                                                        lineNumbers:
-                                                                            "on",
-                                                                        roundedSelection: false,
-                                                                        scrollBeyondLastLine: false,
-                                                                        automaticLayout: true,
-                                                                    }}
-                                                                />
-                                                            )}
-                                                        />
-                                                    </div>
-                                                    {errors.codeSnippets?.[
-                                                        language
-                                                    ] && (
-                                                        <div className="mt-2">
-                                                            <span className="text-error text-sm">
-                                                                {
-                                                                    errors
-                                                                        .codeSnippets[
-                                                                        language
-                                                                    ].message
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Reference Solution */}
-                                            <div className="card bg-base-100 shadow-md">
-                                                <div className="card-body p-4 md:p-6">
-                                                    <h4 className="font-semibold text-base md:text-lg mb-4 flex items-center gap-2">
-                                                        <CheckCircle2 className="w-5 h-5 text-success" />
-                                                        Reference Solution
-                                                    </h4>
-                                                    <div className="border rounded-md overflow-hidden">
-                                                        <Controller
-                                                            name={`referenceSolutions.${language}`}
-                                                            control={control}
-                                                            render={({
-                                                                field,
-                                                            }) => (
-                                                                <Editor
-                                                                    height="300px"
-                                                                    language={language.toLowerCase()}
-                                                                    theme="vs-dark"
-                                                                    value={
-                                                                        field.value
-                                                                    }
-                                                                    onChange={
-                                                                        field.onChange
-                                                                    }
-                                                                    options={{
-                                                                        minimap:
-                                                                            {
-                                                                                enabled: false,
-                                                                            },
-                                                                        fontSize: 14,
-                                                                        lineNumbers:
-                                                                            "on",
-                                                                        roundedSelection: false,
-                                                                        scrollBeyondLastLine: false,
-                                                                        automaticLayout: true,
-                                                                    }}
-                                                                />
-                                                            )}
-                                                        />
-                                                    </div>
-                                                    {errors
-                                                        .referenceSolutions?.[
-                                                        language
-                                                    ] && (
-                                                        <div className="mt-2">
-                                                            <span className="text-error text-sm">
-                                                                {
-                                                                    errors
-                                                                        .referenceSolutions[
-                                                                        language
-                                                                    ].message
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Examples */}
-                                            <div className="card bg-base-100 shadow-md">
-                                                <div className="card-body p-4 md:p-6">
-                                                    <h4 className="font-semibold text-base md:text-lg mb-4">
-                                                        Example
-                                                    </h4>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                                        <div className="form-control">
-                                                            <label className="label">
-                                                                <span className="label-text font-medium">
-                                                                    Input
-                                                                </span>
-                                                            </label>
-                                                            <textarea
-                                                                className="textarea textarea-bordered min-h-20 w-full p-3 resize-y"
-                                                                {...register(
-                                                                    `examples.${language}.input`
-                                                                )}
-                                                                placeholder="Example input"
-                                                            />
-                                                            {errors.examples?.[
-                                                                language
-                                                            ]?.input && (
-                                                                <label className="label">
-                                                                    <span className="label-text-alt text-error">
-                                                                        {
-                                                                            errors
-                                                                                .examples[
-                                                                                language
-                                                                            ]
-                                                                                .input
-                                                                                .message
-                                                                        }
-                                                                    </span>
-                                                                </label>
-                                                            )}
-                                                        </div>
-                                                        <div className="form-control">
-                                                            <label className="label">
-                                                                <span className="label-text font-medium">
-                                                                    Output
-                                                                </span>
-                                                            </label>
-                                                            <textarea
-                                                                className="textarea textarea-bordered min-h-20 w-full p-3 resize-y"
-                                                                {...register(
-                                                                    `examples.${language}.output`
-                                                                )}
-                                                                placeholder="Example output"
-                                                            />
-                                                            {errors.examples?.[
-                                                                language
-                                                            ]?.output && (
-                                                                <label className="label">
-                                                                    <span className="label-text-alt text-error">
-                                                                        {
-                                                                            errors
-                                                                                .examples[
-                                                                                language
-                                                                            ]
-                                                                                .output
-                                                                                .message
-                                                                        }
-                                                                    </span>
-                                                                </label>
-                                                            )}
-                                                        </div>
-                                                        <div className="form-control md:col-span-2">
-                                                            <label className="label">
-                                                                <span className="label-text font-medium">
-                                                                    Explanation
-                                                                </span>
-                                                            </label>
-                                                            <textarea
-                                                                className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                                                                {...register(
-                                                                    `examples.${language}.explanation`
-                                                                )}
-                                                                placeholder="Explain the example"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            )}
-                        </div>
-
-                        {/* Additional Information */}
-                        <div className="card bg-base-200 p-4 md:p-6 shadow-md">
-                            <h3 className="text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
-                                <Lightbulb className="w-5 h-5 text-warning" />
-                                Additional Information
+                    {/* Tags */}
+                    <div className={sectionClass}>
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className={sectionHeadingClass.replace("mb-4 md:mb-6", "mb-0")}>
+                                <BookOpen className="h-5 w-5 text-secondary" />
+                                Tags
                             </h3>
-                            <div className="space-y-6">
-                                <div className="form-control">
-                                    <label className="label">
-                                        <span className="label-text font-medium">
-                                            Constraints
-                                        </span>
-                                    </label>
-                                    <textarea
-                                        className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                                        {...register("constraints")}
-                                        placeholder="Enter problem constraints"
-                                    />
-                                    {errors.constraints && (
-                                        <label className="label">
-                                            <span className="label-text-alt text-error">
-                                                {errors.constraints.message}
-                                            </span>
-                                        </label>
-                                    )}
-                                </div>
-                                <div className="form-control">
-                                    <label className="label">
-                                        <span className="label-text font-medium">
-                                            Hints (Optional)
-                                        </span>
-                                    </label>
-                                    <textarea
-                                        className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                                        {...register("hints")}
-                                        placeholder="Enter hints for solving the problem"
-                                    />
-                                </div>
-                                <div className="form-control">
-                                    <label className="label">
-                                        <span className="label-text font-medium">
-                                            Editorial (Optional)
-                                        </span>
-                                    </label>
-                                    <textarea
-                                        className="textarea textarea-bordered min-h-32 w-full p-3 resize-y"
-                                        {...register("editorial")}
-                                        placeholder="Enter problem editorial/solution explanation"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card-actions justify-end pt-4 border-t">
                             <button
-                                type="submit"
-                                className="btn btn-primary btn-lg gap-2"
+                                type="button"
+                                className="btn btn-primary btn-sm rounded-xl"
+                                onClick={() => appendTag("")}
                             >
-                                {isLoading ? (
-                                    <span className="loading loading-spinner text-white"></span>
-                                ) : (
-                                    <>
-                                        <CheckCircle2 className="w-5 h-5" />
-                                        Create Problem
-                                    </>
-                                )}
+                                <Plus className="h-4 w-4" /> Add Tag
                             </button>
                         </div>
-                    </form>
-                </div>
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                            {tagFields.map((field, index) => (
+                                <div
+                                    key={field.id}
+                                    className="flex items-center gap-2"
+                                >
+                                    <input
+                                        type="text"
+                                        className={`${inputClass} flex-1`}
+                                        {...register(`tags.${index}`)}
+                                        placeholder="Enter tag"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn btn-ghost btn-square btn-sm rounded-xl"
+                                        onClick={() => removeTag(index)}
+                                        disabled={tagFields.length === 1}
+                                    >
+                                        <Trash2 className="h-4 w-4 text-error" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        {errors.tags && (
+                            <span className={`${errorClass} block`}>
+                                {errors.tags.message}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Test Cases */}
+                    <div className={sectionClass}>
+                        <div className="mb-6 flex items-center justify-between">
+                            <h3 className={sectionHeadingClass.replace("mb-4 md:mb-6", "mb-0")}>
+                                <CheckCircle2 className="h-5 w-5 text-success" />
+                                Test Cases
+                            </h3>
+                            <button
+                                type="button"
+                                className="btn btn-primary btn-sm rounded-xl"
+                                onClick={() =>
+                                    appendTestCase({
+                                        input: "",
+                                        output: "",
+                                    })
+                                }
+                            >
+                                <Plus className="h-4 w-4" /> Add Test Case
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            {testCaseFields.map((field, index) => (
+                                <div key={field.id} className={subCardClass}>
+                                    <div className="mb-4 flex items-center justify-between">
+                                        <h4 className="font-display text-base font-semibold text-base-content md:text-lg">
+                                            Test Case #{index + 1}
+                                        </h4>
+                                        <button
+                                            type="button"
+                                            className="btn btn-ghost btn-sm rounded-xl text-error"
+                                            onClick={() => removeTestCase(index)}
+                                            disabled={testCaseFields.length === 1}
+                                        >
+                                            <Trash2 className="h-4 w-4" /> Remove
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+                                        <div>
+                                            <label className={labelClass}>Input</label>
+                                            <textarea
+                                                className={`${textareaClass} min-h-24`}
+                                                {...register(
+                                                    `testcases.${index}.input`
+                                                )}
+                                                placeholder="Enter test case input"
+                                            />
+                                            {errors.testcases?.[index]?.input && (
+                                                <span className={errorClass}>
+                                                    {
+                                                        errors.testcases[index]
+                                                            .input.message
+                                                    }
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>
+                                                Expected Output
+                                            </label>
+                                            <textarea
+                                                className={`${textareaClass} min-h-24`}
+                                                {...register(
+                                                    `testcases.${index}.output`
+                                                )}
+                                                placeholder="Enter expected output"
+                                            />
+                                            {errors.testcases?.[index]?.output && (
+                                                <span className={errorClass}>
+                                                    {
+                                                        errors.testcases[index]
+                                                            .output.message
+                                                    }
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        {errors.testcases && !Array.isArray(errors.testcases) && (
+                            <span className={`${errorClass} block`}>
+                                {errors.testcases.message}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Code Editor Sections */}
+                    <div className="space-y-6 md:space-y-8">
+                        {["JAVASCRIPT", "PYTHON", "JAVA"].map((language) => (
+                            <div key={language} className={sectionClass}>
+                                <h3 className={sectionHeadingClass}>
+                                    <Code2 className="h-5 w-5 text-primary" />
+                                    {language}
+                                </h3>
+
+                                <div className="space-y-4 md:space-y-6">
+                                    {/* Starter Code */}
+                                    <div className={subCardClass}>
+                                        <h4 className="mb-4 text-base font-semibold text-base-content md:text-lg">
+                                            Starter Code Template
+                                        </h4>
+                                        <div className="overflow-hidden rounded-xl border border-white/10">
+                                            <Controller
+                                                name={`codeSnippets.${language}`}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Editor
+                                                        height="300px"
+                                                        language={language.toLowerCase()}
+                                                        theme="vs-dark"
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        options={{
+                                                            minimap: {
+                                                                enabled: false,
+                                                            },
+                                                            fontSize: 14,
+                                                            lineNumbers: "on",
+                                                            roundedSelection: false,
+                                                            scrollBeyondLastLine: false,
+                                                            automaticLayout: true,
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                        {errors.codeSnippets?.[language] && (
+                                            <span className={`${errorClass} block`}>
+                                                {errors.codeSnippets[language].message}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Reference Solution */}
+                                    <div className={subCardClass}>
+                                        <h4 className="mb-4 flex items-center gap-2 text-base font-semibold text-base-content md:text-lg">
+                                            <CheckCircle2 className="h-5 w-5 text-success" />
+                                            Reference Solution
+                                        </h4>
+                                        <div className="overflow-hidden rounded-xl border border-white/10">
+                                            <Controller
+                                                name={`referenceSolutions.${language}`}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Editor
+                                                        height="300px"
+                                                        language={language.toLowerCase()}
+                                                        theme="vs-dark"
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        options={{
+                                                            minimap: {
+                                                                enabled: false,
+                                                            },
+                                                            fontSize: 14,
+                                                            lineNumbers: "on",
+                                                            roundedSelection: false,
+                                                            scrollBeyondLastLine: false,
+                                                            automaticLayout: true,
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                        {errors.referenceSolutions?.[language] && (
+                                            <span className={`${errorClass} block`}>
+                                                {
+                                                    errors.referenceSolutions[language]
+                                                        .message
+                                                }
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Examples */}
+                                    <div className={subCardClass}>
+                                        <h4 className="mb-4 text-base font-semibold text-base-content md:text-lg">
+                                            Example
+                                        </h4>
+                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+                                            <div>
+                                                <label className={labelClass}>Input</label>
+                                                <textarea
+                                                    className={`${textareaClass} min-h-20`}
+                                                    {...register(
+                                                        `examples.${language}.input`
+                                                    )}
+                                                    placeholder="Example input"
+                                                />
+                                                {errors.examples?.[language]?.input && (
+                                                    <span className={errorClass}>
+                                                        {
+                                                            errors.examples[language]
+                                                                .input.message
+                                                        }
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>Output</label>
+                                                <textarea
+                                                    className={`${textareaClass} min-h-20`}
+                                                    {...register(
+                                                        `examples.${language}.output`
+                                                    )}
+                                                    placeholder="Example output"
+                                                />
+                                                {errors.examples?.[language]?.output && (
+                                                    <span className={errorClass}>
+                                                        {
+                                                            errors.examples[language]
+                                                                .output.message
+                                                        }
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <label className={labelClass}>
+                                                    Explanation
+                                                </label>
+                                                <textarea
+                                                    className={`${textareaClass} min-h-24`}
+                                                    {...register(
+                                                        `examples.${language}.explanation`
+                                                    )}
+                                                    placeholder="Explain the example"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Additional Information */}
+                    <div className={sectionClass}>
+                        <h3 className={sectionHeadingClass}>
+                            <Lightbulb className="h-5 w-5 text-warning" />
+                            Additional Information
+                        </h3>
+                        <div className="space-y-5">
+                            <div>
+                                <label className={labelClass}>Constraints</label>
+                                <textarea
+                                    className={`${textareaClass} min-h-24`}
+                                    {...register("constraints")}
+                                    placeholder="Enter problem constraints"
+                                />
+                                {errors.constraints && (
+                                    <span className={errorClass}>
+                                        {errors.constraints.message}
+                                    </span>
+                                )}
+                            </div>
+                            <div>
+                                <label className={labelClass}>Hints (Optional)</label>
+                                <textarea
+                                    className={`${textareaClass} min-h-24`}
+                                    {...register("hints")}
+                                    placeholder="Enter hints for solving the problem"
+                                />
+                            </div>
+                            <div>
+                                <label className={labelClass}>
+                                    Editorial (Optional)
+                                </label>
+                                <textarea
+                                    className={`${textareaClass} min-h-32`}
+                                    {...register("editorial")}
+                                    placeholder="Enter problem editorial/solution explanation"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end border-t border-white/5 pt-6">
+                        <button
+                            type="submit"
+                            className="btn btn-primary btn-lg glow-primary gap-2 rounded-xl"
+                        >
+                            {isLoading ? (
+                                <span className="loading loading-spinner"></span>
+                            ) : (
+                                <>
+                                    <CheckCircle2 className="h-5 w-5" />
+                                    Create Problem
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

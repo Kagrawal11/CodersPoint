@@ -1,53 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap");
+
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+    themes: coderspoint --default;
+}
+
+@plugin "daisyui/theme" {
+    name: "coderspoint";
+    default: true;
+    prefersdark: true;
+    color-scheme: dark;
+
+    --color-base-100: oklch(16% 0.014 262);
+    --color-base-200: oklch(13% 0.013 262);
+    --color-base-300: oklch(10% 0.012 262);
+    --color-base-content: oklch(93% 0.01 262);
+
+    --color-primary: oklch(66% 0.21 289);
+    --color-primary-content: oklch(98% 0.01 289);
+    --color-secondary: oklch(74% 0.13 199);
+    --color-secondary-content: oklch(12% 0.02 199);
+    --color-accent: oklch(76% 0.17 340);
+    --color-accent-content: oklch(12% 0.02 340);
+
+    --color-neutral: oklch(24% 0.015 262);
+    --color-neutral-content: oklch(90% 0.01 262);
+
+    --color-info: oklch(72% 0.13 220);
+    --color-info-content: oklch(10% 0.02 220);
+    --color-success: oklch(74% 0.16 152);
+    --color-success-content: oklch(10% 0.02 152);
+    --color-warning: oklch(82% 0.17 82);
+    --color-warning-content: oklch(10% 0.02 82);
+    --color-error: oklch(66% 0.21 25);
+    --color-error-content: oklch(98% 0.01 25);
+
+    --radius-selector: 0.75rem;
+    --radius-field: 0.75rem;
+    --radius-box: 1.25rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 1;
+    --noise: 0;
+}
+
+@theme {
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, sans-serif;
+}
+
+html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+}
+
+body {
+    background: radial-gradient(
+            ellipse 80% 60% at 50% -10%,
+            oklch(66% 0.21 289 / 0.16),
+            transparent
+        ),
+        radial-gradient(
+            ellipse 60% 50% at 100% 10%,
+            oklch(74% 0.13 199 / 0.08),
+            transparent
+        ),
+        oklch(13% 0.013 262);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+}
+
+::selection {
+    background: oklch(66% 0.21 289 / 0.35);
+}
+
+/* thin, unobtrusive scrollbar to match the dark surface */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: oklch(30% 0.02 262);
+    border-radius: 999px;
+    border: 2px solid oklch(13% 0.013 262);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: oklch(40% 0.03 262);
+}
+
+.glass-panel {
+    background: oklch(20% 0.015 262 / 0.55);
+    backdrop-filter: blur(20px);
+    border: 1px solid oklch(100% 0 0 / 0.06);
+}
+
+.glow-primary {
+    box-shadow: 0 0 0 1px oklch(66% 0.21 289 / 0.25),
+        0 8px 30px -8px oklch(66% 0.21 289 / 0.45);
+}
 
 @keyframes blink {
     0%,
     100% {
-      opacity: 1;
+        opacity: 1;
     }
     50% {
-      opacity: 0;
+        opacity: 0;
     }
-  }
-  
-  .animate-blink {
+}
+
+.animate-blink {
     animation: blink 1s infinite;
-  }
-  
-  .animate-pulse {
+}
+
+.animate-pulse {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  .delay-100 {
+}
+
+.delay-100 {
     animation-delay: 1s;
-  }
-  
-  .delay-200 {
+}
+
+.delay-200 {
     animation-delay: 2s;
-  }
-  
-  .delay-300 {
+}
+
+.delay-300 {
     animation-delay: 3s;
-  }
-  
-  .delay-500 {
+}
+
+.delay-500 {
     animation-delay: 5s;
-  }
-  
-  .delay-700 {
+}
+
+.delay-700 {
     animation-delay: 7s;
-  }
-  
-  @keyframes pulse {
+}
+
+@keyframes pulse {
     0%,
     100% {
-      opacity: 0.3;
-      transform: scale(1);
+        opacity: 0.3;
+        transform: scale(1);
     }
     50% {
-      opacity: 0.8;
-      transform: scale(1.05);
+        opacity: 0.8;
+        transform: scale(1.05);
     }
-  }
-  
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out both;
+}

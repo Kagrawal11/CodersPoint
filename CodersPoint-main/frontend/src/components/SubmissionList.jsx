@@ -4,6 +4,7 @@ import {
     Clock,
     MemoryStick as Memory,
     Calendar,
+    Inbox,
 } from "lucide-react";
 
 const SubmissionsList = ({ submissions, isLoading }) => {
@@ -44,7 +45,7 @@ const SubmissionsList = ({ submissions, isLoading }) => {
     // Loading state
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center p-8">
+            <div className="flex items-center justify-center p-10">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
         );
@@ -53,66 +54,68 @@ const SubmissionsList = ({ submissions, isLoading }) => {
     // No submissions state
     if (!submissions?.length) {
         return (
-            <div className="text-center p-8">
-                <div className="text-base-content/70">No submissions yet</div>
+            <div className="glass-panel flex flex-col items-center gap-3 rounded-2xl p-10 text-center">
+                <div className="rounded-full bg-base-300/60 p-3">
+                    <Inbox className="h-6 w-6 text-base-content/40" />
+                </div>
+                <div className="text-sm text-base-content/50">
+                    No submissions yet
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-4">
+        <div className="animate-fade-in-up space-y-3">
             {submissions.map((submission) => {
                 const avgMemory = calculateAverageMemory(submission.memory);
                 const avgTime = calculateAverageTime(submission.time);
+                const isAccepted = submission.status === "Accepted";
 
                 return (
                     <div
                         key={submission.id}
-                        className="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow rounded-lg"
+                        className="glass-panel flex flex-col gap-3 rounded-2xl p-4 transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between"
                     >
-                        <div className="card-body p-4">
-                            <div className="flex items-center justify-between">
-                                {/* Left Section: Status and Language */}
-                                <div className="flex items-center gap-4">
-                                    {submission.status === "Accepted" ? (
-                                        <div className="flex items-center gap-2 text-success">
-                                            <CheckCircle2 className="w-6 h-6" />
-                                            <span className="font-semibold">
-                                                Accepted
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2 text-error">
-                                            <XCircle className="w-6 h-6" />
-                                            <span className="font-semibold">
-                                                {submission.status}
-                                            </span>
-                                        </div>
-                                    )}
-                                    <div className="badge badge-neutral">
-                                        {submission.language}
-                                    </div>
+                        {/* Left Section: Status and Language */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            {isAccepted ? (
+                                <div className="flex items-center gap-2 text-success">
+                                    <CheckCircle2 className="h-5 w-5" />
+                                    <span className="font-semibold">
+                                        Accepted
+                                    </span>
                                 </div>
+                            ) : (
+                                <div className="flex items-center gap-2 text-error">
+                                    <XCircle className="h-5 w-5" />
+                                    <span className="font-semibold">
+                                        {submission.status}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="badge badge-neutral badge-sm rounded-full font-mono">
+                                {submission.language}
+                            </div>
+                        </div>
 
-                                {/* Right Section: Runtime, Memory, and Date */}
-                                <div className="flex items-center gap-4 text-base-content/70">
-                                    <div className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4" />
-                                        <span>{avgTime.toFixed(3)} s</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Memory className="w-4 h-4" />
-                                        <span>{avgMemory.toFixed(0)} KB</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>
-                                            {new Date(
-                                                submission.createdAt
-                                            ).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                </div>
+                        {/* Right Section: Runtime, Memory, and Date */}
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-base-content/50">
+                            <div className="flex items-center gap-1">
+                                <Clock className="h-3.5 w-3.5" />
+                                <span>{avgTime.toFixed(3)} s</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <Memory className="h-3.5 w-3.5" />
+                                <span>{avgMemory.toFixed(0)} KB</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <Calendar className="h-3.5 w-3.5" />
+                                <span>
+                                    {new Date(
+                                        submission.createdAt
+                                    ).toLocaleDateString()}
+                                </span>
                             </div>
                         </div>
                     </div>

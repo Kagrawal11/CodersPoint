@@ -21,15 +21,19 @@ const App = () => {
 
     if (isCheckingAuth && !authUser) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <Loader className="size-10 animate-spin" />
+            <div className="flex h-screen items-center justify-center bg-base-100">
+                <Loader className="size-10 animate-spin text-primary" />
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col items-center justify-start">
-            <Toaster />
+        <div className="flex min-h-screen flex-col items-center justify-start">
+            <Toaster
+                toastOptions={{
+                    className: "!bg-base-200 !text-base-content !border !border-white/10",
+                }}
+            />
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route

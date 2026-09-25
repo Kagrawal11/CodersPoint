@@ -6,7 +6,7 @@ const AdminRoute = () => {
     const {authUser , isCheckingAuth} = useAuthStore()
 
      if (isCheckingAuth) {
-      return <div className="flex items-center justify-center h-screen"><Loader className="size-10 animate-spin" /></div>;
+      return <div className="flex h-screen items-center justify-center bg-base-100"><Loader className="size-10 animate-spin text-primary" /></div>;
     }
   
     if(!authUser || authUser.role !== "ADMIN"){

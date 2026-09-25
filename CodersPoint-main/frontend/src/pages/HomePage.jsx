@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 import { useProblemStore } from "../store/useProblemStore";
-import { Loader } from "lucide-react";
+import { Loader, Sparkles } from "lucide-react";
 import ProblemTable from "../components/ProblemTable";
 
 const HomePage = () => {
@@ -13,32 +13,50 @@ const HomePage = () => {
 
     if (isProblemsLoading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <Loader className="size-10 animate-spin" />
+            <div className="flex h-[80vh] items-center justify-center">
+                <Loader className="size-10 animate-spin text-primary" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center mt-14 px-4">
-            <div className="absolute top-16 left-0 w-1/3 h-1/3 bg-primary opacity-30 blur-3xl rounded-md bottom-9"></div>
-            <h1 className="text-4xl font-extrabold z-10 text-center">
-                Welcome to <span className="text-primary">Coder's Point</span>
-            </h1>
+        <div className="relative flex min-h-screen w-full flex-col items-center px-4 pb-20 pt-16">
+            {/* Ambient glow */}
+            <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]" />
 
-            <p className="mt-4 text-center text-lg font-semibold text-gray-500 dark:text-gray-400 z-10">
-                A Platform Inspired by Leetcode which helps you to prepare for
-                coding interviews and helps you to improve your coding skills by
-                solving coding problems
-            </p>
+            <div className="relative z-10 flex flex-col items-center text-center">
+                <span className="badge badge-outline badge-primary mb-4 gap-1.5 px-3 py-3 text-xs font-medium">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Practice. Improve. Get hired.
+                </span>
+                <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+                    Welcome to{" "}
+                    <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                        Coder&apos;s Point
+                    </span>
+                </h1>
 
-            {problems.length > 0 ? (
-                <ProblemTable problems={problems} />
-            ) : (
-                <p className="mt-10 text-center text-lg font-semibold text-gray-500 dark:text-gray-400 z-10 border border-primary px-4 py-2 rounded-md border-dashed">
-                    No problems found
+                <p className="mt-5 max-w-2xl text-balance text-base font-medium text-base-content/60 sm:text-lg">
+                    A platform inspired by LeetCode that helps you prepare for
+                    coding interviews and sharpen your problem-solving skills,
+                    one challenge at a time.
                 </p>
-            )}
+            </div>
+
+            <div className="relative z-10 w-full">
+                {problems.length > 0 ? (
+                    <ProblemTable problems={problems} />
+                ) : (
+                    <div className="mx-auto mt-14 flex max-w-md flex-col items-center gap-3 rounded-2xl border border-dashed border-base-content/15 bg-base-200/40 px-8 py-12 text-center">
+                        <p className="text-base font-semibold text-base-content/70">
+                            No problems found
+                        </p>
+                        <p className="text-sm text-base-content/50">
+                            Check back soon — new challenges are on the way.
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
