@@ -21,6 +21,7 @@ model User {
   submission     Submission[]
   solvedProblems ProblemSolved[]
   playlists      Playlist[]
+  comments       Comment[]
 }
 
 model Problem {
@@ -43,6 +44,8 @@ model Problem {
   submission         Submission[]
   solvedBy           ProblemSolved[]
   problemsPlaylist   ProblemsInPlaylist[]
+  comments           Comment[]
+  contestProblems    ContestProblem[]
 }
 
 model Submission {
@@ -126,6 +129,43 @@ model ProblemsInPlaylist {
   problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@unique([playListId, problemId]) // unique problem in playlist
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+}
+
+model Contest {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  problems ContestProblem[]
+}
+
+model ContestProblem {
+  id        String @id @default(uuid())
+  contestId String
+  problemId String
+
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([contestId, problemId])
 }
 
 enum UserRole {

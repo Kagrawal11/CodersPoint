@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Code2, LogOut, Sparkles, ChevronDown, Trophy } from "lucide-react";
+import { User, Code2, LogOut, Sparkles, ChevronDown, Trophy, Swords, LayoutDashboard } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
@@ -32,6 +32,13 @@ const Navbar = () => {
                     >
                         <Trophy className="h-4 w-4 text-warning" />
                         Leaderboard
+                    </Link>
+                    <Link
+                        to="/contests"
+                        className="btn btn-ghost btn-sm hidden items-center gap-1.5 rounded-xl sm:inline-flex"
+                    >
+                        <Swords className="h-4 w-4 text-secondary" />
+                        Contests
                     </Link>
                     <ThemeToggle />
                     {authUser?.role === "ADMIN" && (
@@ -90,6 +97,15 @@ const Navbar = () => {
                                     Leaderboard
                                 </Link>
                             </li>
+                            <li className="sm:hidden">
+                                <Link
+                                    to="/contests"
+                                    className="rounded-lg text-sm font-medium hover:bg-primary hover:text-primary-content"
+                                >
+                                    <Swords className="h-4 w-4" />
+                                    Contests
+                                </Link>
+                            </li>
                             {authUser?.role === "ADMIN" && (
                                 <li>
                                     <Link
@@ -98,6 +114,17 @@ const Navbar = () => {
                                     >
                                         <Code2 className="h-4 w-4" />
                                         Add Problem
+                                    </Link>
+                                </li>
+                            )}
+                            {authUser?.role === "ADMIN" && (
+                                <li>
+                                    <Link
+                                        to="/admin/dashboard"
+                                        className="rounded-lg text-sm font-medium hover:bg-primary hover:text-primary-content"
+                                    >
+                                        <LayoutDashboard className="h-4 w-4" />
+                                        Admin Dashboard
                                     </Link>
                                 </li>
                             )}

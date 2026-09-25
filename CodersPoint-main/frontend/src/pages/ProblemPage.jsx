@@ -28,6 +28,7 @@ import { useSubmissionStore } from "../store/useSubmissionStore";
 import Submission from "../components/Submission";
 import SubmissionsList from "../components/SubmissionList";
 import ThemeToggle from "../components/ThemeToggle";
+import Discussion from "../components/Discussion";
 
 const tabConfig = [
     { key: "description", label: "Description", icon: FileText },
@@ -283,15 +284,7 @@ const ProblemPage = () => {
                     />
                 );
             case "discussion":
-                return (
-                    <div className="flex flex-col items-center gap-2 p-8 text-center text-base-content/50">
-                        <MessageSquare className="h-8 w-8 text-base-content/25" />
-                        <p className="font-medium">No discussions yet</p>
-                        <p className="text-sm text-base-content/40">
-                            Be the first to share your approach.
-                        </p>
-                    </div>
-                );
+                return <Discussion problemId={id} />;
             case "hints":
                 return (
                     <div>

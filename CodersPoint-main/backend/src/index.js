@@ -17,6 +17,9 @@ import submissionRoutes from "./routes/submission.route.js";
 import playlistRoutes from "./routes/playlist.route.js";
 
 import userRouter from "./routes/user.route.js";
+import commentRoutes from "./routes/comment.route.js";
+import contestRoutes from "./routes/contest.route.js";
+import analyticsRoutes from "./routes/analytics.route.js";
 
 // configure dotenv
 dotenv.config({
@@ -49,6 +52,9 @@ app.use("/api/v1/execute-code", executionRoutes);
 app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/comments", commentRoutes);
+app.use("/api/v1/contests", contestRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 
 // serve the built frontend from the same origin/service in production
 if (process.env.NODE_ENV === "production") {
