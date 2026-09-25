@@ -36,6 +36,10 @@ const problemSchema = z.object({
             })
         )
         .min(1, "At least one test case is required"),
+    // Only JavaScript is required end-to-end (it's the only language the judge
+    // actually executes against right now - see backend/src/lib/sandbox.js).
+    // Python/Java are accepted but optional so admins aren't forced to write
+    // out examples/solutions in three languages just to publish one problem.
     examples: z.object({
         JAVASCRIPT: z.object({
             input: z.string().min(1, "Input is required"),
@@ -43,25 +47,25 @@ const problemSchema = z.object({
             explanation: z.string().optional(),
         }),
         PYTHON: z.object({
-            input: z.string().min(1, "Input is required"),
-            output: z.string().min(1, "Output is required"),
+            input: z.string().optional(),
+            output: z.string().optional(),
             explanation: z.string().optional(),
         }),
         JAVA: z.object({
-            input: z.string().min(1, "Input is required"),
-            output: z.string().min(1, "Output is required"),
+            input: z.string().optional(),
+            output: z.string().optional(),
             explanation: z.string().optional(),
         }),
     }),
     codeSnippets: z.object({
         JAVASCRIPT: z.string().min(1, "JavaScript code snippet is required"),
-        PYTHON: z.string().min(1, "Python code snippet is required"),
-        JAVA: z.string().min(1, "Java solution is required"),
+        PYTHON: z.string().optional(),
+        JAVA: z.string().optional(),
     }),
     referenceSolutions: z.object({
         JAVASCRIPT: z.string().min(1, "JavaScript solution is required"),
-        PYTHON: z.string().min(1, "Python solution is required"),
-        JAVA: z.string().min(1, "Java solution is required"),
+        PYTHON: z.string().optional(),
+        JAVA: z.string().optional(),
     }),
 });
 
@@ -577,10 +581,18 @@ const CreateProblemForm = () => {
             navigation("/");
         } catch (error) {
             console.log(error);
-            toast.error("Error creating problem");
+            toast.error(
+                error.response?.data?.message || "Error creating problem"
+            );
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // handleSubmit silently no-ops on validation failure otherwise, which
+    // looks like the button is just broken - surface it instead.
+    const onInvalid = () => {
+        toast.error("Please fix the highlighted fields before submitting.");
     };
 
     const loadSampleData = () => {
@@ -653,7 +665,7 @@ const CreateProblemForm = () => {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+                <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6 md:space-y-8">
                     {/* Basic Information */}
                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
                         <div className="md:col-span-2">
