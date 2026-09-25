@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import {
     Play,
@@ -6,7 +6,6 @@ import {
     MessageSquare,
     Lightbulb,
     Bookmark,
-    Share2,
     Clock,
     ChevronRight,
     Terminal,
@@ -15,14 +14,20 @@ import {
     ThumbsUp,
     Home,
     CheckCircle2,
+    Copy,
+    RotateCcw,
+    Minus,
+    Plus,
+    Link2,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import { useProblemStore } from "../store/useProblemStore";
-import { getLanguageId } from "../lib/lang";
 import { useExecutionStore } from "../store/useExecutionStore";
 import { useSubmissionStore } from "../store/useSubmissionStore";
 import Submission from "../components/Submission";
 import SubmissionsList from "../components/SubmissionList";
+import ThemeToggle from "../components/ThemeToggle";
 
 const tabConfig = [
     { key: "description", label: "Description", icon: FileText },
@@ -54,6 +59,8 @@ const ProblemPage = () => {
     const [selectedLanguage, setSelectedLanguage] = useState("javascript");
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [testcases, setTestCases] = useState([]);
+    const [fontSize, setFontSize] = useState(16);
+    const editorRef = useRef(null);
 
     const { executeCode, submissionData, isExecuting } = useExecutionStore();
 
@@ -90,15 +97,72 @@ const ProblemPage = () => {
         setCode(problem.codeSnippets?.[lang] || "");
     };
 
+    // "Run" checks the visible sample testcases without saving a submission;
+    // "Submit" (has problemId) grades against the real testcases and saves it.
     const handleRunCode = (e) => {
-        e.preventDefault();
+        e?.preventDefault();
         try {
-            const language_id = getLanguageId(selectedLanguage);
             const stdin = problem.testcases.map((tc) => tc.input);
             const expected_outputs = problem.testcases.map((tc) => tc.output);
-            executeCode(code, language_id, stdin, expected_outputs, id);
+            executeCode(code, selectedLanguage.toUpperCase(), stdin, expected_outputs);
         } catch (error) {
             console.log("Error executing code", error);
+        }
+    };
+
+    const handleSubmitCode = (e) => {
+        e.preventDefault();
+        try {
+            executeCode(code, selectedLanguage.toUpperCase(), [], [], id);
+        } catch (error) {
+            console.log("Error submitting code", error);
+        }
+    };
+
+    const handleEditorMount = (editor, monaco) => {
+        editorRef.current = editor;
+        editor.addCommand(
+            monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+            () => handleRunCode()
+        );
+    };
+
+    const handleCopyCode = async () => {
+        try {
+            await navigator.clipboard.writeText(code);
+            toast.success("Code copied to clipboard");
+        } catch {
+            toast.error("Couldn't copy code");
+        }
+    };
+
+    const handleResetCode = () => {
+        if (!window.confirm("Reset to the starter code? Your current edits will be lost.")) {
+            return;
+        }
+        setCode(problem.codeSnippets?.[selectedLanguage] || "");
+        toast.success("Editor reset to starter code");
+    };
+
+    const handleCopyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            toast.success("Problem link copied");
+        } catch {
+            toast.error("Couldn't copy link");
+        }
+    };
+
+    const changeFontSize = (delta) => {
+        setFontSize((prev) => Math.min(24, Math.max(10, prev + delta)));
+    };
+
+    const handleCopyExample = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            toast.success("Copied");
+        } catch {
+            toast.error("Couldn't copy");
         }
     };
 
@@ -138,17 +202,45 @@ const ProblemPage = () => {
                                                     <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-secondary">
                                                         Input
                                                     </div>
-                                                    <span className="inline-block rounded-lg bg-base-100 px-3 py-1.5 font-semibold text-base-content">
-                                                        {example.input}
-                                                    </span>
+                                                    <div className="inline-flex items-center gap-2">
+                                                        <span className="inline-block rounded-lg bg-base-100 px-3 py-1.5 font-semibold text-base-content">
+                                                            {example.input}
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleCopyExample(
+                                                                    example.input
+                                                                )
+                                                            }
+                                                            className="btn btn-ghost btn-xs btn-circle"
+                                                            title="Copy input"
+                                                        >
+                                                            <Copy className="h-3.5 w-3.5" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <div className="mb-3">
                                                     <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-secondary">
                                                         Output
                                                     </div>
-                                                    <span className="inline-block rounded-lg bg-base-100 px-3 py-1.5 font-semibold text-base-content">
-                                                        {example.output}
-                                                    </span>
+                                                    <div className="inline-flex items-center gap-2">
+                                                        <span className="inline-block rounded-lg bg-base-100 px-3 py-1.5 font-semibold text-base-content">
+                                                            {example.output}
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleCopyExample(
+                                                                    example.output
+                                                                )
+                                                            }
+                                                            className="btn btn-ghost btn-xs btn-circle"
+                                                            title="Copy output"
+                                                        >
+                                                            <Copy className="h-3.5 w-3.5" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 {example.explanation && (
                                                     <div>
@@ -192,8 +284,12 @@ const ProblemPage = () => {
                 );
             case "discussion":
                 return (
-                    <div className="p-4 text-center text-base-content/50">
-                        No discussions yet
+                    <div className="flex flex-col items-center gap-2 p-8 text-center text-base-content/50">
+                        <MessageSquare className="h-8 w-8 text-base-content/25" />
+                        <p className="font-medium">No discussions yet</p>
+                        <p className="text-sm text-base-content/40">
+                            Be the first to share your approach.
+                        </p>
                     </div>
                 );
             case "hints":
@@ -206,8 +302,15 @@ const ProblemPage = () => {
                                 </span>
                             </div>
                         ) : (
-                            <div className="text-center text-base-content/50">
-                                No hints available
+                            <div className="flex flex-col items-center gap-2 p-8 text-center text-base-content/50">
+                                <Lightbulb className="h-8 w-8 text-base-content/25" />
+                                <p className="font-medium">
+                                    No hints for this one
+                                </p>
+                                <p className="text-sm text-base-content/40">
+                                    You've got this — try breaking it into
+                                    smaller steps.
+                                </p>
                             </div>
                         )}
                     </div>
@@ -274,9 +377,14 @@ const ProblemPage = () => {
                         >
                             <Bookmark className="h-4 w-4" />
                         </button>
-                        <button className="btn btn-ghost btn-circle btn-sm">
-                            <Share2 className="h-4 w-4" />
+                        <button
+                            className="btn btn-ghost btn-circle btn-sm"
+                            onClick={handleCopyLink}
+                            title="Copy problem link"
+                        >
+                            <Link2 className="h-4 w-4" />
                         </button>
+                        <ThemeToggle className="btn-sm" />
                         <select
                             className="select select-bordered select-sm w-36 rounded-lg bg-base-200"
                             value={selectedLanguage}
@@ -321,11 +429,50 @@ const ProblemPage = () => {
                     </div>
 
                     <div className="overflow-hidden rounded-2xl border border-white/5 bg-base-200/40 shadow-xl shadow-black/10">
-                        <div className="flex items-center gap-2 border-b border-white/5 px-5 py-3">
-                            <Terminal className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-semibold">
-                                Code Editor
-                            </span>
+                        <div className="flex items-center justify-between gap-2 border-b border-white/5 px-5 py-3">
+                            <div className="flex items-center gap-2">
+                                <Terminal className="h-4 w-4 text-primary" />
+                                <span className="text-sm font-semibold">
+                                    Code Editor
+                                </span>
+                                <span className="hidden text-xs text-base-content/40 sm:inline">
+                                    (Ctrl+Enter to run)
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    className="btn btn-ghost btn-xs btn-circle"
+                                    onClick={() => changeFontSize(-1)}
+                                    title="Decrease font size"
+                                >
+                                    <Minus className="h-3.5 w-3.5" />
+                                </button>
+                                <span className="w-6 text-center text-xs text-base-content/50">
+                                    {fontSize}
+                                </span>
+                                <button
+                                    className="btn btn-ghost btn-xs btn-circle"
+                                    onClick={() => changeFontSize(1)}
+                                    title="Increase font size"
+                                >
+                                    <Plus className="h-3.5 w-3.5" />
+                                </button>
+                                <div className="mx-1 h-4 w-px bg-white/10" />
+                                <button
+                                    className="btn btn-ghost btn-xs btn-circle"
+                                    onClick={handleCopyCode}
+                                    title="Copy code"
+                                >
+                                    <Copy className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                    className="btn btn-ghost btn-xs btn-circle"
+                                    onClick={handleResetCode}
+                                    title="Reset to starter code"
+                                >
+                                    <RotateCcw className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
                         </div>
 
                         <div className="h-[500px] w-full sm:h-[600px]">
@@ -335,9 +482,10 @@ const ProblemPage = () => {
                                 theme="vs-dark"
                                 value={code}
                                 onChange={(value) => setCode(value || "")}
+                                onMount={handleEditorMount}
                                 options={{
                                     minimap: { enabled: false },
-                                    fontSize: 16,
+                                    fontSize,
                                     lineNumbers: "on",
                                     roundedSelection: false,
                                     scrollBeyondLastLine: false,
@@ -362,7 +510,11 @@ const ProblemPage = () => {
                                     )}
                                     Run Code
                                 </button>
-                                <button className="btn btn-success gap-2 rounded-xl">
+                                <button
+                                    className="btn btn-success gap-2 rounded-xl"
+                                    onClick={handleSubmitCode}
+                                    disabled={isExecuting}
+                                >
                                     <CheckCircle2 className="h-4 w-4" />
                                     Submit Solution
                                 </button>

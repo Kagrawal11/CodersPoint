@@ -2,7 +2,7 @@
 
 @import "tailwindcss";
 @plugin "daisyui" {
-    themes: coderspoint --default;
+    themes: coderspoint --default, coderspoint-light;
 }
 
 @plugin "daisyui/theme" {
@@ -33,6 +33,46 @@
     --color-warning: oklch(82% 0.17 82);
     --color-warning-content: oklch(10% 0.02 82);
     --color-error: oklch(66% 0.21 25);
+    --color-error-content: oklch(98% 0.01 25);
+
+    --radius-selector: 0.75rem;
+    --radius-field: 0.75rem;
+    --radius-box: 1.25rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 1;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: "coderspoint-light";
+    default: false;
+    prefersdark: false;
+    color-scheme: light;
+
+    --color-base-100: oklch(99% 0.004 262);
+    --color-base-200: oklch(96% 0.006 262);
+    --color-base-300: oklch(92% 0.008 262);
+    --color-base-content: oklch(22% 0.02 262);
+
+    --color-primary: oklch(52% 0.22 289);
+    --color-primary-content: oklch(98% 0.01 289);
+    --color-secondary: oklch(56% 0.12 199);
+    --color-secondary-content: oklch(98% 0.01 199);
+    --color-accent: oklch(58% 0.19 340);
+    --color-accent-content: oklch(98% 0.01 340);
+
+    --color-neutral: oklch(90% 0.01 262);
+    --color-neutral-content: oklch(20% 0.02 262);
+
+    --color-info: oklch(55% 0.13 220);
+    --color-info-content: oklch(98% 0.01 220);
+    --color-success: oklch(48% 0.14 152);
+    --color-success-content: oklch(98% 0.01 152);
+    --color-warning: oklch(60% 0.17 82);
+    --color-warning-content: oklch(15% 0.02 82);
+    --color-error: oklch(52% 0.21 25);
     --color-error-content: oklch(98% 0.01 25);
 
     --radius-selector: 0.75rem;
@@ -110,6 +150,42 @@ h4,
 .glow-primary {
     box-shadow: 0 0 0 1px oklch(66% 0.21 289 / 0.25),
         0 8px 30px -8px oklch(66% 0.21 289 / 0.45);
+}
+
+[data-theme="coderspoint-light"] body {
+    background: radial-gradient(
+            ellipse 80% 60% at 50% -10%,
+            oklch(52% 0.22 289 / 0.1),
+            transparent
+        ),
+        radial-gradient(
+            ellipse 60% 50% at 100% 10%,
+            oklch(56% 0.12 199 / 0.06),
+            transparent
+        ),
+        oklch(99% 0.004 262);
+}
+
+[data-theme="coderspoint-light"] .glass-panel {
+    background: oklch(100% 0 0 / 0.7);
+    border: 1px solid oklch(0% 0 0 / 0.06);
+}
+
+[data-theme="coderspoint-light"] .glow-primary {
+    box-shadow: 0 0 0 1px oklch(52% 0.22 289 / 0.2),
+        0 8px 30px -8px oklch(52% 0.22 289 / 0.35);
+}
+
+[data-theme="coderspoint-light"] ::-webkit-scrollbar-thumb {
+    background: oklch(80% 0.01 262);
+    border: 2px solid oklch(99% 0.004 262);
+}
+[data-theme="coderspoint-light"] ::-webkit-scrollbar-thumb:hover {
+    background: oklch(70% 0.02 262);
+}
+
+[data-theme="coderspoint-light"] ::selection {
+    background: oklch(52% 0.22 289 / 0.25);
 }
 
 @keyframes blink {

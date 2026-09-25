@@ -8,7 +8,7 @@ export const useExecutionStore = create((set) => ({
 
     executeCode: async (
         source_code,
-        language_id,
+        language,
         stdin,
         expected_outputs,
         problemId
@@ -16,10 +16,9 @@ export const useExecutionStore = create((set) => ({
         try {
             set({ isExecuting: true });
 
-            console.log(language_id);
             const res = await axiosInstance.post("/execute-code", {
                 source_code,
-                language_id,
+                language,
                 stdin,
                 expected_outputs,
                 problemId,

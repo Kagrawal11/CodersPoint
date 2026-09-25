@@ -164,9 +164,14 @@ const ProblemsTable = ({ problems }) => {
                                         >
                                             <td>
                                                 {isSolved ? (
-                                                    <CheckCircle2 className="h-5 w-5 text-success" />
+                                                    <span
+                                                        className="flex h-6 w-6 items-center justify-center rounded-full bg-success/15 text-success"
+                                                        title="Solved"
+                                                    >
+                                                        <CheckCircle2 className="h-4 w-4" />
+                                                    </span>
                                                 ) : (
-                                                    <span className="block h-5 w-5 rounded-full border border-base-content/20" />
+                                                    <span className="block h-6 w-6 rounded-full border border-dashed border-base-content/20" />
                                                 )}
                                             </td>
                                             <td>
@@ -181,26 +186,51 @@ const ProblemsTable = ({ problems }) => {
                                                 <div className="flex flex-wrap gap-1">
                                                     {(problem.tags || []).map(
                                                         (tag, idx) => (
-                                                            <span
+                                                            <button
                                                                 key={idx}
-                                                                className="badge badge-ghost badge-sm font-medium text-base-content/60"
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setSelectedTag(
+                                                                        (prev) =>
+                                                                            prev ===
+                                                                            tag
+                                                                                ? "ALL"
+                                                                                : tag
+                                                                    )
+                                                                }
+                                                                className={`badge badge-sm cursor-pointer font-medium transition-colors ${
+                                                                    selectedTag ===
+                                                                    tag
+                                                                        ? "badge-primary"
+                                                                        : "badge-ghost text-base-content/60 hover:badge-primary hover:text-primary-content"
+                                                                }`}
                                                             >
                                                                 {tag}
-                                                            </span>
+                                                            </button>
                                                         )
                                                     )}
                                                 </div>
                                             </td>
                                             <td>
-                                                <span
-                                                    className={`badge font-semibold text-xs ${
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setDifficulty((prev) =>
+                                                            prev ===
+                                                            problem.difficulty
+                                                                ? "ALL"
+                                                                : problem.difficulty
+                                                        )
+                                                    }
+                                                    className={`badge cursor-pointer font-semibold text-xs transition-transform hover:scale-105 ${
                                                         difficultyBadge[
                                                             problem.difficulty
                                                         ] || "badge-neutral"
                                                     }`}
+                                                    title={`Filter by ${problem.difficulty}`}
                                                 >
                                                     {problem.difficulty}
-                                                </span>
+                                                </button>
                                             </td>
                                             <td>
                                                 <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
@@ -247,9 +277,15 @@ const ProblemsTable = ({ problems }) => {
                                 <tr>
                                     <td
                                         colSpan={5}
-                                        className="py-8 text-center text-base-content/50"
+                                        className="py-10 text-center"
                                     >
-                                        No problems found.
+                                        <p className="font-semibold text-base-content/70">
+                                            No problems match that filter
+                                        </p>
+                                        <p className="mt-1 text-sm text-base-content/45">
+                                            Try a different search term or
+                                            clear the filters above.
+                                        </p>
                                     </td>
                                 </tr>
                             )}

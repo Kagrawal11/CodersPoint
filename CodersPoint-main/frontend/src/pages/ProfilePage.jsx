@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { axiosInstance } from "../lib/axios";
-import { User, CheckCircle, Clock, Award, Loader, AlertCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import { User, CheckCircle, Clock, Award, Loader, AlertCircle, Pencil, Check, X } from "lucide-react";
+import { useAuthStore } from "../store/useAuthStore";
 
 const ProfilePage = () => {
+  const { authUser, setAuthUser } = useAuthStore();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditingAvatar, setIsEditingAvatar] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [isSavingAvatar, setIsSavingAvatar] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -21,6 +27,23 @@ const ProfilePage = () => {
 
     fetchProfile();
   }, []);
+
+  const handleSaveAvatar = async () => {
+    try {
+      setIsSavingAvatar(true);
+      const res = await axiosInstance.patch("/users/profile", {
+        image: avatarUrl.trim(),
+      });
+      setProfile((prev) => ({ ...prev, user: res.data.data }));
+      setAuthUser({ ...authUser, image: res.data.data.image });
+      setIsEditingAvatar(false);
+      toast.success("Avatar updated");
+    } catch (err) {
+      toast.error("Couldn't update avatar");
+    } finally {
+      setIsSavingAvatar(false);
+    }
+  };
 
   if (loading)
     return (
@@ -58,10 +81,33 @@ const ProfilePage = () => {
       <div className="animate-fade-in-up space-y-6">
         {/* Header Section */}
         <div className="glass-panel flex flex-col items-center gap-6 rounded-2xl p-6 text-center sm:flex-row sm:text-left">
-          <div className="glow-primary flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-3xl font-bold text-primary-content">
-            {user.name.charAt(0).toUpperCase()}
+          <div className="group relative shrink-0">
+            {user.image ? (
+              <div className="glow-primary h-24 w-24 overflow-hidden rounded-full">
+                <img
+                  src={user.image}
+                  alt={user.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="glow-primary flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-3xl font-bold text-primary-content">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setAvatarUrl(user.image || "");
+                setIsEditingAvatar(true);
+              }}
+              className="btn btn-circle btn-xs absolute -bottom-1 -right-1 bg-base-300 opacity-0 transition-opacity group-hover:opacity-100"
+              title="Change avatar"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="font-display text-3xl font-bold text-base-content">
               {user.name}
             </h1>
@@ -69,6 +115,39 @@ const ProfilePage = () => {
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-base-300/60 px-3 py-1 text-xs font-medium text-base-content/60">
               Joined {new Date(user.createdAt).toLocaleDateString()}
             </div>
+
+            {isEditingAvatar && (
+              <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row">
+                <input
+                  type="text"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  placeholder="https://example.com/avatar.png"
+                  className="input input-bordered input-sm w-full max-w-xs rounded-lg bg-base-300/40"
+                />
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handleSaveAvatar}
+                    disabled={isSavingAvatar}
+                    className="btn btn-primary btn-sm btn-circle"
+                  >
+                    {isSavingAvatar ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingAvatar(false)}
+                    className="btn btn-ghost btn-sm btn-circle"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

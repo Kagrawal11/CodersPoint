@@ -1,15 +1,27 @@
 import React, { useEffect } from "react";
 
 import { useProblemStore } from "../store/useProblemStore";
-import { Loader, Sparkles } from "lucide-react";
+import { Loader, Sparkles, Shuffle } from "lucide-react";
 import ProblemTable from "../components/ProblemTable";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const HomePage = () => {
     const { getAllProblems, problems, isProblemsLoading } = useProblemStore();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getAllProblems();
     }, [getAllProblems]);
+
+    const handleRandomProblem = () => {
+        if (problems.length === 0) {
+            toast.error("No problems to pick from yet");
+            return;
+        }
+        const random = problems[Math.floor(Math.random() * problems.length)];
+        navigate(`/problem/${random.id}`);
+    };
 
     if (isProblemsLoading) {
         return (
@@ -41,6 +53,16 @@ const HomePage = () => {
                     coding interviews and sharpen your problem-solving skills,
                     one challenge at a time.
                 </p>
+
+                {problems.length > 0 && (
+                    <button
+                        onClick={handleRandomProblem}
+                        className="btn btn-outline btn-primary mt-6 gap-2 rounded-xl"
+                    >
+                        <Shuffle className="h-4 w-4" />
+                        Surprise me with a problem
+                    </button>
+                )}
             </div>
 
             <div className="relative z-10 w-full">

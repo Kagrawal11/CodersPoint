@@ -1,8 +1,9 @@
 import React from "react";
-import { User, Code2, LogOut, Sparkles, ChevronDown } from "lucide-react";
+import { User, Code2, LogOut, Sparkles, ChevronDown, Trophy } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
     const { authUser } = useAuthStore();
@@ -25,6 +26,14 @@ const Navbar = () => {
 
                 {/* User Profile and Dropdown */}
                 <div className="flex items-center gap-3">
+                    <Link
+                        to="/leaderboard"
+                        className="btn btn-ghost btn-sm hidden items-center gap-1.5 rounded-xl sm:inline-flex"
+                    >
+                        <Trophy className="h-4 w-4 text-warning" />
+                        Leaderboard
+                    </Link>
+                    <ThemeToggle />
                     {authUser?.role === "ADMIN" && (
                         <span className="badge badge-primary badge-outline hidden items-center gap-1 sm:inline-flex">
                             <Sparkles className="h-3 w-3" />
@@ -70,6 +79,15 @@ const Navbar = () => {
                                 >
                                     <User className="h-4 w-4" />
                                     My Profile
+                                </Link>
+                            </li>
+                            <li className="sm:hidden">
+                                <Link
+                                    to="/leaderboard"
+                                    className="rounded-lg text-sm font-medium hover:bg-primary hover:text-primary-content"
+                                >
+                                    <Trophy className="h-4 w-4" />
+                                    Leaderboard
                                 </Link>
                             </li>
                             {authUser?.role === "ADMIN" && (

@@ -81,3 +81,68 @@ export const getUserProfile = async (req, res) => {
         return res.status(500).json(new ApiError(500, "Failed to fetch profile"));
     }
 };
+
+export const updateProfile = async (req, res) => {
+    try {
+        const { image } = req.body;
+
+        if (typeof image !== "string") {
+            return res.status(400).json(new ApiError(400, "image must be a string URL"));
+        }
+
+        const user = await db.user.update({
+            where: { id: req.user.id },
+            data: { image },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                image: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+
+        return res.status(200).json(
+            new ApiResponse(200, "Profile updated successfully", user)
+        );
+    } catch (error) {
+        logger.error("Error updating profile:", error);
+        return res.status(500).json(new ApiError(500, "Failed to update profile"));
+    }
+};
+
+export const getLeaderboard = async (req, res) => {
+    try {
+        const grouped = await db.problemSolved.groupBy({
+            by: ["userId"],
+            _count: { problemId: true },
+            orderBy: { _count: { problemId: "desc" } },
+            take: 50,
+        });
+
+        const users = await db.user.findMany({
+            where: { id: { in: grouped.map((g) => g.userId) } },
+            select: { id: true, name: true, image: true },
+        });
+        const userMap = new Map(users.map((u) => [u.id, u]));
+
+        const leaderboard = grouped
+            .filter((g) => userMap.has(g.userId))
+            .map((g, i) => ({
+                rank: i + 1,
+                userId: g.userId,
+                name: userMap.get(g.userId).name,
+                image: userMap.get(g.userId).image,
+                solvedCount: g._count.problemId,
+            }));
+
+        return res.status(200).json(
+            new ApiResponse(200, "Leaderboard fetched successfully", leaderboard)
+        );
+    } catch (error) {
+        logger.error("Error fetching leaderboard:", error);
+        return res.status(500).json(new ApiError(500, "Failed to fetch leaderboard"));
+    }
+};
